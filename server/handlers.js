@@ -1,0 +1,183 @@
+import { timingSafeEqual } from "node:crypto";
+import { fetchCalendarIcs, fetchNewsItems } from "./feed-utils.js";
+
+const COMMON_HEADERS = {
+  "Cache-Control": "no-store",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "no-referrer"
+};
+
+function json(data, status = 200, extraHeaders = {}) {
+  return Response.json(data, { status, headers: { ...COMMON_HEADERS, ...extraHeaders } });
+}
+
+function errorResponse(error) {
+  const status = Number(error?.status) || 500;
+  const message = status >= 500 && !error?.message ? "O servidor encontrou um erro." : error?.message || "Não foi possível concluir esta ação.";
+  return json({ ok: false, message }, status);
+}
+
+function safeEquals(left, right) {
+  const leftBuffer = Buffer.from(String(left));
+  const rightBuffer = Buffer.from(String(right));
+  if (leftBuffer.length !== rightBuffer.length) return false;
+  return timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+function authorize(request, { local = false } = {}) {
+  if (local) return null;
+  const expected = process.env.PAINEL_API_TOKEN;
+  if (!expected) {
+    return json({ ok: false, message: "Defina PAINEL_API_TOKEN na Vercel antes de ativar dados privados." }, 503);
+  }
+  const received = request.headers.get("x-painel-token") || request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") || "";
+  if (!received || !safeEquals(received, expected)) {
+    return json({ ok: false, message: "Token pessoal ausente ou inválido." }, 401);
+  }
+  return null;
+}
+
+function randomId(prefix) {
+  return `${prefix}-${crypto.randomUUID()}`;
+}
+
+function safeFilename(value = "arquivo") {
+  return String(value).replace(/[\r\n"]/g, "_").slice(0, 180) || "arquivo";
+}
+
+export function healthResponse({ mode, database, files, news = true, calendar = true, requiresToken = false }) {
+  return json({
+    ok: true,
+    reachable: true,
+    mode,
+    database: Boolean(database),
+    files: Boolean(files),
+    news: Boolean(news),
+    calendar: Boolean(calendar),
+    requiresToken: Boolean(requiresToken)
+  });
+}
+
+export async function handleState(request, store, options = {}) {
+  const authFailure = authorize(request, options);
+  if (authFailure) return authFailure;
+
+  try {
+    if (request.method === "GET") {
+      const url = new URL(request.url);
+      const id = String(url.searchParams.get("id") || "mirna-dashboard").slice(0, 100);
+      const row = await store.getState(id);
+      return row ? json(row) : json({ ok: false, message: "Estado ainda não criado." }, 404);
+    }
+
+    if (request.method === "PUT") {
+      const body = await request.json();
+      const id = String(body?.id || "mirna-dashboard").slice(0, 100);
+      if (!body?.payload || typeof body.payload !== "object" || Array.isArray(body.payload)) {
+        return json({ ok: false, message: "Estado inválido." }, 400);
+      }
+      const serializedSize = Buffer.byteLength(JSON.stringify(body.payload));
+      if (serializedSize > 2 * 1024 * 1024) return json({ ok: false, message: "O estado ultrapassa o limite de 2 MB." }, 413);
+      const row = await store.putState(id, body.payload, body.clientUpdatedAt || null);
+      return json(row);
+    }
+
+    return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "GET, PUT" });
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+export async function handleFiles(request, store, options = {}) {
+  const authFailure = authorize(request, options);
+  if (authFailure) return authFailure;
+
+  try {
+    if (request.method === "GET") return json(await store.listFiles());
+    if (request.method === "DELETE") {
+      const id = new URL(request.url).searchParams.get("id");
+      if (!id) return json({ ok: false, message: "Arquivo não informado." }, 400);
+      const deleted = await store.deleteFile(String(id).slice(0, 180));
+      return deleted ? json({ ok: true }) : json({ ok: false, message: "Arquivo não encontrado." }, 404);
+    }
+    return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "GET, DELETE" });
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+export async function handleUpload(request, store, options = {}) {
+  const authFailure = authorize(request, options);
+  if (authFailure) return authFailure;
+
+  try {
+    const form = await request.formData();
+    const file = form.get("file");
+    const destinationId = String(form.get("destinationId") || "00");
+    const note = String(form.get("note") || "").slice(0, 180);
+    if (!file || typeof file.arrayBuffer !== "function" || typeof file.name !== "string") {
+      return json({ ok: false, message: "Nenhum arquivo foi recebido." }, 400);
+    }
+    if (file.size > store.maxUploadBytes) {
+      return json({ ok: false, message: `O arquivo ultrapassa o limite de ${Math.round(store.maxUploadBytes / 1024 / 1024)} MB deste armazenamento.` }, 413);
+    }
+    const saved = await store.saveFile({ id: randomId("file"), destinationId, note, file });
+    return json(saved, 201);
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+export async function handleFileDownload(request, store, options = {}) {
+  const authFailure = authorize(request, options);
+  if (authFailure) return authFailure;
+
+  try {
+    const id = new URL(request.url).searchParams.get("id");
+    if (!id) return json({ ok: false, message: "Arquivo não informado." }, 400);
+    const result = await store.getFile(String(id).slice(0, 180));
+    if (!result) return json({ ok: false, message: "Arquivo não encontrado." }, 404);
+    const filename = safeFilename(result.metadata.name);
+    const headers = {
+      "Content-Type": result.metadata.mimeType || "application/octet-stream",
+      "Content-Length": String(result.metadata.sizeBytes || ""),
+      "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff"
+    };
+    if (!headers["Content-Length"]) delete headers["Content-Length"];
+    if (result.etag) headers.ETag = result.etag;
+    return new Response(result.body, { status: 200, headers });
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+export async function handleNews(request) {
+  try {
+    const url = new URL(request.url);
+    const query = url.searchParams.get("q") || "";
+    const limit = Math.min(15, Math.max(1, Number(url.searchParams.get("limit") || 10)));
+    const items = await fetchNewsItems(query, limit);
+    return json({ ok: true, items, fetchedAt: new Date().toISOString() }, 200, { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" });
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+export async function handleCalendar(request) {
+  if (request.method !== "POST") return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "POST" });
+  try {
+    const body = await request.json();
+    const ics = await fetchCalendarIcs(body?.url);
+    return new Response(ics, {
+      status: 200,
+      headers: {
+        ...COMMON_HEADERS,
+        "Content-Type": "text/calendar; charset=utf-8"
+      }
+    });
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
