@@ -14,7 +14,7 @@
     "validate:full": "npm run validate && npm run test:browser"
   },
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
