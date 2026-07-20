@@ -1,15 +1,15 @@
 {
   "name": "Painel da Mirna",
-  "short_name": "Painel da Mirna",
-  "description": "Rotina, estudos, ballet e planos em um só lugar.",
-  "start_url": "/",
+  "short_name": "Mirna",
+  "description": "Agenda, arquivos, estudos, ballet e rotina da Mirna.",
+  "lang": "pt-BR",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f8f3ef",
   "theme_color": "#8f5f72",
-  "lang": "pt-BR",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "./icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
