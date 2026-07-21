@@ -1,12 +1,12 @@
 {
   "name": "painel-da-mirna",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "private": true,
   "type": "module",
-  "description": "Painel pessoal da Mirna com agenda, Kanban, Spotify, clima, banco, notas e arquivos.",
+  "description": "Painel pessoal da Mirna com navegação lateral, agenda, Kanban, Spotify, clima, banco, notas e arquivos.",
   "scripts": {
     "dev": "python3 -m http.server 4173",
-    "check": "node --check app.js && node --check app-config.js && node --check workspace.js && node --check auto-sync.js && node --check auto-fix.js && node --check data-hub.js && node --check runtime-v5.js && node --check integrations-v5.js && node --check spotify.js && node --check sw.js && node --check server/handlers.js && node --check server/cloud-store.js && node --check server/local-store.js && node --check api/files.js && node --check api/weather.js && node --check server.js",
+    "check": "node --check app.js && node --check app-config.js && node --check workspace.js && node --check calendar-v6.js && node --check sidebar-v6.js && node --check auto-sync.js && node --check auto-fix.js && node --check data-hub.js && node --check runtime-v5.js && node --check integrations-v5.js && node --check spotify.js && node --check sw.js && node --check server/handlers.js && node --check server/cloud-store.js && node --check server/local-store.js && node --check api/files.js && node --check api/weather.js && node --check server.js",
     "test": "node --test tests/*.test.mjs"
   },
   "engines": {
