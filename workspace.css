@@ -1,0 +1,443 @@
+:root {
+  --ws-rose: #c68a9f;
+  --ws-blush: #f4dfe5;
+  --ws-cream: #fffaf6;
+  --ws-coffee: #8a6b5f;
+  --ws-sage: #8fa68e;
+  --ws-gold: #c5a36a;
+  --ws-blue: #8299b6;
+  --ws-spotify: #1ed760;
+}
+
+.ws-nav-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  text-decoration: none;
+  font-size: .82rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.ws-nav-button:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  box-shadow: var(--shadow-soft);
+}
+
+.ws-section {
+  position: relative;
+  isolation: isolate;
+  margin-top: clamp(32px, 6vw, 76px);
+  animation: ws-rise .7s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.ws-section::before {
+  content: "";
+  position: absolute;
+  inset: -22px;
+  z-index: -1;
+  border-radius: 34px;
+  background: radial-gradient(circle at 12% 4%, color-mix(in srgb, var(--accent-soft) 58%, transparent), transparent 35%),
+              radial-gradient(circle at 92% 75%, color-mix(in srgb, var(--sage-soft) 55%, transparent), transparent 32%);
+  opacity: .58;
+  pointer-events: none;
+}
+
+.ws-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 18px;
+}
+
+.ws-heading h2,
+.ws-panel h3,
+.ws-dialog h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: -.025em;
+}
+
+.ws-heading h2 { font-size: clamp(1.8rem, 4vw, 2.75rem); }
+.ws-heading p { max-width: 700px; margin: 8px 0 0; color: var(--muted); }
+
+.ws-heading-actions,
+.ws-toolbar,
+.ws-toolbar-group,
+.ws-segmented {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ws-shell,
+.ws-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(20px);
+}
+
+.ws-shell { overflow: hidden; }
+
+.ws-toolbar {
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--surface-soft) 72%, transparent), transparent);
+}
+
+.ws-toolbar-title {
+  min-width: 210px;
+  text-align: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.18rem;
+  font-weight: 700;
+}
+
+.ws-icon-button,
+.ws-view-button,
+.ws-mini-button,
+.ws-card-action {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.ws-icon-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  font-size: 1.1rem;
+}
+
+.ws-mini-button {
+  min-height: 38px;
+  padding: 0 13px;
+  border-radius: 12px;
+  font-weight: 750;
+}
+
+.ws-icon-button:hover,
+.ws-view-button:hover,
+.ws-mini-button:hover,
+.ws-card-action:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  box-shadow: 0 10px 22px rgba(74,52,63,.09);
+}
+
+.ws-segmented {
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.ws-view-button {
+  min-height: 34px;
+  padding: 0 14px;
+  border-color: transparent;
+  border-radius: 10px;
+  background: transparent;
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.ws-view-button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--accent-strong);
+  box-shadow: 0 7px 18px rgba(75,50,62,.1);
+  transform: translateY(-1px);
+}
+
+.ws-calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, .34fr) minmax(0, 1fr);
+  min-height: 540px;
+}
+
+.ws-day-focus {
+  position: relative;
+  padding: 26px;
+  border-right: 1px solid var(--line);
+  background: linear-gradient(155deg, color-mix(in srgb, var(--accent-soft) 40%, var(--surface)), var(--surface));
+  overflow: hidden;
+}
+
+.ws-day-focus::after {
+  content: "";
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  right: -95px;
+  bottom: -95px;
+  border: 28px solid color-mix(in srgb, var(--accent) 13%, transparent);
+  border-radius: 50%;
+  animation: ws-orbit 16s linear infinite;
+}
+
+.ws-focus-date {
+  display: grid;
+  place-items: center;
+  width: 132px;
+  aspect-ratio: 1;
+  margin: 8px auto 22px;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent) 0 32%, var(--surface-strong) 32% 100%);
+  box-shadow: inset 0 0 0 14px var(--surface), 0 20px 42px rgba(91,61,74,.13);
+  animation: ws-breathe 4.2s ease-in-out infinite;
+}
+
+.ws-focus-date strong { display: block; font-size: 2.35rem; line-height: 1; text-align: center; }
+.ws-focus-date small { display: block; margin-top: 6px; color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; }
+.ws-focus-copy { text-align: center; }
+.ws-focus-copy h3 { font-size: 1.35rem; }
+.ws-focus-copy p { color: var(--muted); }
+
+.ws-day-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.ws-day-list-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 87%, transparent);
+  animation: ws-pop .35s ease both;
+}
+
+.ws-day-list-item::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--item-color, var(--accent));
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--item-color, var(--accent)) 13%, transparent);
+}
+
+.ws-day-list-item strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-day-list-item time { color: var(--muted); font-size: .75rem; }
+.ws-empty { padding: 28px 12px; color: var(--muted); text-align: center; }
+
+.ws-calendar-stage {
+  position: relative;
+  min-width: 0;
+  padding: 22px;
+  overflow: hidden;
+}
+
+.ws-calendar-stage.is-switching > * { animation: ws-slide-in .35s cubic-bezier(.2,.8,.2,1) both; }
+
+.ws-weekdays,
+.ws-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.ws-weekdays {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ws-month-grid {
+  gap: 7px;
+}
+
+.ws-month-day {
+  position: relative;
+  min-height: 96px;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.ws-month-day:hover {
+  z-index: 2;
+  transform: translateY(-4px) scale(1.018);
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--line));
+  box-shadow: 0 16px 34px rgba(76,52,63,.12);
+}
+
+.ws-month-day.is-other { opacity: .42; }
+.ws-month-day.is-today { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: color-mix(in srgb, var(--accent-soft) 32%, var(--surface)); }
+.ws-month-day.is-selected { outline: 3px solid color-mix(in srgb, var(--accent) 22%, transparent); outline-offset: 1px; }
+.ws-day-number { display: inline-grid; place-items: center; width: 27px; height: 27px; border-radius: 9px; font-weight: 850; }
+.ws-month-day.is-today .ws-day-number { background: var(--accent); color: white; }
+.ws-day-dots { display: grid; gap: 4px; margin-top: 7px; }
+.ws-day-chip { display: block; padding: 4px 6px; border-radius: 7px; background: color-mix(in srgb, var(--chip-color, var(--accent)) 17%, var(--surface)); color: var(--text); font-size: .64rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-day-more { color: var(--muted); font-size: .65rem; font-weight: 750; }
+
+.ws-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(150px, 1fr));
+  gap: 10px;
+  min-width: 1050px;
+}
+
+.ws-week-scroll { overflow-x: auto; padding: 2px 2px 12px; scrollbar-width: thin; }
+.ws-week-day { min-height: 430px; padding: 13px; border: 1px solid var(--line); border-radius: 18px; background: color-mix(in srgb, var(--surface) 92%, transparent); }
+.ws-week-day.is-today { background: color-mix(in srgb, var(--accent-soft) 28%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.ws-week-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.ws-week-head span { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
+.ws-week-head strong { font-size: 1.28rem; }
+.ws-week-events { display: grid; gap: 8px; margin-top: 12px; }
+.ws-week-card { padding: 10px; border-left: 4px solid var(--item-color, var(--accent)); border-radius: 11px; background: color-mix(in srgb, var(--item-color, var(--accent)) 12%, var(--surface)); animation: ws-pop .4s ease both; }
+.ws-week-card strong { display: block; font-size: .8rem; }
+.ws-week-card small { color: var(--muted); }
+
+.ws-pop-layout { display: grid; gap: 14px; }
+.ws-pop-hero { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px; border: 1px solid var(--line); border-radius: 22px; background: linear-gradient(135deg, color-mix(in srgb, var(--accent-soft) 42%, var(--surface)), var(--surface)); }
+.ws-pop-date { display: flex; align-items: center; gap: 14px; }
+.ws-pop-date strong { font: 700 3rem/1 Georgia, serif; }
+.ws-pop-date span { display: block; color: var(--muted); }
+.ws-pop-timeline { position: relative; display: grid; gap: 12px; padding-left: 28px; }
+.ws-pop-timeline::before { content: ""; position: absolute; left: 10px; top: 5px; bottom: 5px; width: 2px; background: linear-gradient(var(--accent), color-mix(in srgb, var(--accent) 8%, transparent)); }
+.ws-pop-item { position: relative; display: grid; grid-template-columns: 78px minmax(0, 1fr) auto; gap: 13px; align-items: center; padding: 15px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); animation: ws-slide-in .42s cubic-bezier(.2,.8,.2,1) both; }
+.ws-pop-item::before { content: ""; position: absolute; left: -24px; width: 12px; height: 12px; border: 3px solid var(--surface); border-radius: 50%; background: var(--item-color, var(--accent)); box-shadow: 0 0 0 2px var(--item-color, var(--accent)); }
+.ws-pop-time { color: var(--accent-strong); font-weight: 850; }
+.ws-pop-item p { margin: 3px 0 0; color: var(--muted); font-size: .8rem; }
+
+.ws-kanban-shell { padding: 18px; }
+.ws-kanban-scroll { overflow-x: auto; padding-bottom: 12px; scrollbar-width: thin; }
+.ws-kanban-board { display: grid; grid-template-columns: repeat(5, minmax(230px, 1fr)); gap: 12px; min-width: 1190px; }
+.ws-kanban-column { min-height: 420px; padding: 12px; border: 1px solid var(--line); border-radius: 20px; background: color-mix(in srgb, var(--surface-soft) 58%, var(--surface)); transition: background .2s ease, transform .2s ease, border-color .2s ease; }
+.ws-kanban-column.is-over { transform: translateY(-4px); border-color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 35%, var(--surface)); }
+.ws-column-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 3px 12px; }
+.ws-column-title { display: flex; align-items: center; gap: 8px; font-weight: 850; }
+.ws-column-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--column-color); box-shadow: 0 0 0 5px color-mix(in srgb, var(--column-color) 14%, transparent); }
+.ws-column-count { display: grid; place-items: center; min-width: 25px; height: 25px; border-radius: 9px; background: var(--surface); color: var(--muted); font-size: .72rem; font-weight: 800; }
+.ws-column-list { display: grid; gap: 10px; min-height: 330px; }
+.ws-kanban-card { position: relative; padding: 13px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: 0 8px 18px rgba(70,50,59,.055); cursor: grab; animation: ws-pop .38s cubic-bezier(.2,.8,.2,1) both; transition: transform .22s ease, box-shadow .22s ease, opacity .22s ease; }
+.ws-kanban-card:hover { transform: translateY(-4px) rotate(.35deg); box-shadow: 0 18px 35px rgba(70,50,59,.13); }
+.ws-kanban-card:active { cursor: grabbing; }
+.ws-kanban-card.is-dragging { opacity: .45; transform: rotate(2deg) scale(.97); }
+.ws-kanban-card.is-done { opacity: .72; }
+.ws-kanban-card.is-done .ws-card-title { text-decoration: line-through; }
+.ws-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ws-card-category { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: .7rem; font-weight: 750; }
+.ws-card-priority { width: 8px; height: 8px; border-radius: 50%; background: var(--priority-color, var(--sage)); }
+.ws-card-title { margin: 10px 0 7px; font-weight: 850; line-height: 1.35; }
+.ws-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .72rem; }
+.ws-card-actions { display: flex; gap: 5px; margin-top: 10px; opacity: .2; transition: opacity .2s ease; }
+.ws-kanban-card:hover .ws-card-actions, .ws-kanban-card:focus-within .ws-card-actions { opacity: 1; }
+.ws-card-action { width: 30px; height: 30px; border-radius: 9px; }
+.ws-add-column { width: 100%; margin-top: 10px; border: 1px dashed color-mix(in srgb, var(--accent) 38%, var(--line)); border-radius: 13px; background: transparent; color: var(--muted); min-height: 38px; cursor: pointer; font-weight: 750; transition: background .2s ease, color .2s ease, transform .2s ease; }
+.ws-add-column:hover { transform: translateY(-2px); background: var(--surface); color: var(--accent-strong); }
+
+.ws-spotify-shell { display: grid; grid-template-columns: minmax(260px, .42fr) minmax(0, 1fr); overflow: hidden; }
+.ws-spotify-profile { position: relative; padding: 28px; background: radial-gradient(circle at 90% 10%, rgba(30,215,96,.2), transparent 38%), linear-gradient(145deg, #151515, #242424); color: white; overflow: hidden; }
+.ws-spotify-profile::after { content: "♪"; position: absolute; right: -8px; bottom: -42px; font-size: 12rem; color: rgba(255,255,255,.055); transform: rotate(-8deg); }
+.ws-spotify-logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: -.02em; }
+.ws-spotify-logo span { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--ws-spotify); color: #111; font-size: 1.2rem; animation: ws-breathe 3s ease-in-out infinite; }
+.ws-spotify-profile h3 { margin: 36px 0 8px; font-size: 1.75rem; }
+.ws-spotify-profile p { color: rgba(255,255,255,.68); }
+.ws-spotify-profile .button { position: relative; z-index: 2; margin-top: 12px; border-color: rgba(255,255,255,.18); background: white; color: #111; text-decoration: none; }
+.ws-spotify-player { padding: 24px; background: var(--surface); }
+.ws-spotify-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin-bottom: 16px; }
+.ws-spotify-form input { min-width: 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-soft); color: var(--text); }
+.ws-spotify-frame-wrap { min-height: 190px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(145deg, color-mix(in srgb, var(--surface-soft) 70%, var(--surface)), var(--surface)); overflow: hidden; }
+.ws-spotify-frame { display: block; width: 100%; border: 0; animation: ws-rise .55s ease both; }
+.ws-spotify-empty { max-width: 520px; padding: 28px; text-align: center; color: var(--muted); }
+.ws-spotify-empty strong { display: block; margin-bottom: 8px; color: var(--text); font-size: 1.05rem; }
+
+.ws-dialog {
+  width: min(620px, calc(100vw - 28px));
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 35px 90px rgba(30,20,25,.28);
+}
+.ws-dialog::backdrop { background: rgba(37,25,31,.48); backdrop-filter: blur(8px); }
+.ws-dialog[open] { animation: ws-dialog-in .28s cubic-bezier(.2,.8,.2,1) both; }
+.ws-dialog-card { padding: 24px; }
+.ws-dialog-head { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.ws-dialog-head p { margin: 6px 0 0; color: var(--muted); }
+.ws-dialog-close { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); color: var(--text); cursor: pointer; font-size: 1.25rem; }
+.ws-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ws-form-grid .ws-full { grid-column: 1 / -1; }
+.ws-dialog label { display: grid; gap: 6px; color: var(--muted); font-size: .78rem; font-weight: 750; }
+.ws-dialog input, .ws-dialog select, .ws-dialog textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); color: var(--text); font: inherit; }
+.ws-dialog textarea { min-height: 90px; resize: vertical; }
+.ws-check-row { display: flex !important; grid-column: 1 / -1; grid-template-columns: auto 1fr !important; align-items: center; gap: 10px !important; padding: 10px 12px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-soft); }
+.ws-check-row input { width: auto; }
+.ws-dialog-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
+
+.ws-confetti { position: fixed; z-index: 9999; width: 9px; height: 9px; border-radius: 3px; background: var(--confetti-color, var(--accent)); pointer-events: none; animation: ws-confetti .8s ease-out forwards; }
+.ws-live { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+@keyframes ws-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ws-slide-in { from { opacity: 0; transform: translateX(18px) scale(.985); } to { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes ws-pop { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes ws-dialog-in { from { opacity: 0; transform: translateY(18px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes ws-breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+@keyframes ws-orbit { to { transform: rotate(360deg); } }
+@keyframes ws-confetti { to { transform: translate(var(--x), var(--y)) rotate(540deg); opacity: 0; } }
+
+@media (max-width: 900px) {
+  .ws-heading { align-items: start; flex-direction: column; }
+  .ws-calendar-layout, .ws-spotify-shell { grid-template-columns: 1fr; }
+  .ws-day-focus { border-right: 0; border-bottom: 1px solid var(--line); }
+  .ws-day-focus .ws-focus-date { width: 110px; }
+  .ws-calendar-stage { padding: 15px; }
+  .ws-month-day { min-height: 82px; padding: 7px; border-radius: 13px; }
+  .ws-day-chip { font-size: .58rem; }
+}
+
+@media (max-width: 640px) {
+  .ws-nav-button { width: 42px; padding: 0; justify-content: center; font-size: 0; }
+  .ws-nav-button::before { content: "✦"; font-size: 1rem; }
+  .ws-toolbar { align-items: stretch; }
+  .ws-toolbar-group, .ws-segmented { width: 100%; justify-content: center; }
+  .ws-toolbar-title { order: -1; width: 100%; }
+  .ws-view-button { flex: 1; }
+  .ws-month-grid { gap: 4px; }
+  .ws-month-day { min-height: 60px; padding: 5px; }
+  .ws-day-chip { display: none; }
+  .ws-day-dots { display: flex; gap: 3px; }
+  .ws-day-dots::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  .ws-pop-item { grid-template-columns: 60px minmax(0, 1fr); }
+  .ws-pop-item .ws-card-action { grid-column: 2; }
+  .ws-spotify-form, .ws-form-grid { grid-template-columns: 1fr; }
+  .ws-form-grid .ws-full { grid-column: auto; }
+  .ws-check-row { grid-column: auto; }
+  .ws-dialog-actions { flex-direction: column-reverse; }
+  .ws-dialog-actions .button { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ws-section, .ws-calendar-stage.is-switching > *, .ws-kanban-card, .ws-day-list-item, .ws-week-card, .ws-pop-item, .ws-dialog[open], .ws-focus-date, .ws-day-focus::after, .ws-spotify-logo span { animation: none !important; transition: none !important; }
+}
