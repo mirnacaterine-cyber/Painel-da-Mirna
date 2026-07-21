@@ -1,4 +1,4 @@
-const CACHE_NAME = "painel-da-mirna-v6";
+const CACHE_NAME = "painel-da-mirna-v7";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -7,6 +7,8 @@ const APP_SHELL = [
   "/app.js",
   "/app-config.js",
   "/workspace.js",
+  "/calendar-v6.js",
+  "/sidebar-v6.js",
   "/auto-sync.js",
   "/auto-fix.js",
   "/data-hub.js",
