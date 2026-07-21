@@ -127,13 +127,13 @@ export const APP_CONFIG = {
 if (typeof window !== "undefined") {
   queueMicrotask(async () => {
     try {
+      await import("./sidebar-v7.js");
       await import("./workspace.js");
       await import("./calendar-v6.js");
       await import("./auto-sync.js");
       await import("./auto-fix.js");
       await import("./data-hub.js");
       await import("./runtime-v5.js");
-      await import("./sidebar-v6.js");
     } catch (error) {
       console.error("Falha ao iniciar o espaço pessoal da Mirna", error);
     }
