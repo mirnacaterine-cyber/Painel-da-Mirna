@@ -125,5 +125,12 @@ export const APP_CONFIG = {
 };
 
 if (typeof window !== "undefined") {
-  queueMicrotask(() => import("./workspace.js").catch((error) => console.error("Falha ao iniciar o espaço de planejamento", error)));
+  queueMicrotask(async () => {
+    try {
+      await import("./workspace.js");
+      await import("./auto-sync.js");
+    } catch (error) {
+      console.error("Falha ao iniciar o espaço pessoal da Mirna", error);
+    }
+  });
 }
