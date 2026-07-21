@@ -1,4 +1,9 @@
 const DEFAULT_CITY = "Marechal Cândido Rondon, Paraná";
+const DEFAULT_COORDINATES = {
+  latitude: -24.557,
+  longitude: -54.0571,
+  label: DEFAULT_CITY
+};
 
 function numberParam(value, min, max) {
   if (value == null || String(value).trim() === "") return null;
@@ -6,13 +11,31 @@ function numberParam(value, min, max) {
   return Number.isFinite(parsed) && parsed >= min && parsed <= max ? parsed : null;
 }
 
+function withoutDiacritics(value) {
+  return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 async function fetchJson(url) {
   const response = await fetch(url, {
-    headers: { Accept: "application/json", "User-Agent": "Painel-da-Mirna/4.1" },
+    headers: { Accept: "application/json", "User-Agent": "Painel-da-Mirna/5.0" },
     signal: AbortSignal.timeout(9000)
   });
   if (!response.ok) throw new Error(`Serviço de clima respondeu ${response.status}.`);
   return response.json();
+}
+
+async function geocode(query) {
+  const geocoding = new URL("https://geocoding-api.open-meteo.com/v1/search");
+  geocoding.searchParams.set("name", query);
+  geocoding.searchParams.set("count", "5");
+  geocoding.searchParams.set("language", "pt");
+  geocoding.searchParams.set("format", "json");
+  const data = await fetchJson(geocoding);
+  const results = Array.isArray(data.results) ? data.results : [];
+  return results.find((place) => {
+    const country = String(place.country_code || place.country || "").toUpperCase();
+    return country === "BR" || country === "BRASIL" || country === "BRAZIL";
+  }) || results[0] || null;
 }
 
 async function resolveLocation(requestUrl) {
@@ -28,20 +51,33 @@ async function resolveLocation(requestUrl) {
     };
   }
 
-  const geocoding = new URL("https://geocoding-api.open-meteo.com/v1/search");
-  geocoding.searchParams.set("name", requestedCity);
-  geocoding.searchParams.set("count", "1");
-  geocoding.searchParams.set("language", "pt");
-  geocoding.searchParams.set("format", "json");
-  const data = await fetchJson(geocoding);
-  const place = data.results?.[0];
-  if (!place) throw Object.assign(new Error("Cidade não encontrada para a previsão."), { status: 404 });
+  const firstPart = requestedCity.split(",")[0].trim();
+  const candidates = [...new Set([
+    requestedCity,
+    firstPart,
+    withoutDiacritics(firstPart)
+  ].filter(Boolean))];
 
-  return {
-    latitude: place.latitude,
-    longitude: place.longitude,
-    label: [place.name, place.admin1].filter(Boolean).join(", ") || requestedCity
-  };
+  for (const candidate of candidates) {
+    try {
+      const place = await geocode(candidate);
+      if (place) {
+        return {
+          latitude: place.latitude,
+          longitude: place.longitude,
+          label: [place.name, place.admin1].filter(Boolean).join(", ") || requestedCity
+        };
+      }
+    } catch {
+      // Tenta a próxima forma do nome antes de usar o fallback seguro.
+    }
+  }
+
+  if (/marechal\s+candido\s+rondon/i.test(withoutDiacritics(requestedCity))) {
+    return DEFAULT_COORDINATES;
+  }
+
+  throw Object.assign(new Error("Cidade não encontrada para a previsão."), { status: 404 });
 }
 
 export async function GET(request) {
