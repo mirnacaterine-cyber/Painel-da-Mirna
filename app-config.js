@@ -123,3 +123,7 @@ export const APP_CONFIG = {
     }
   ]
 };
+
+if (typeof window !== "undefined") {
+  queueMicrotask(() => import("./workspace.js").catch((error) => console.error("Falha ao iniciar o espaço de planejamento", error)));
+}
