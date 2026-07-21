@@ -42,6 +42,7 @@ if (typeof window !== "undefined") {
     try {
       await import("./sidebar-v7.js");
       await import("./atelier.js");
+      await import("./atelier-nav.js");
       await import("./workspace.js");
       await import("./calendar-v6.js");
       await import("./auto-sync.js");
