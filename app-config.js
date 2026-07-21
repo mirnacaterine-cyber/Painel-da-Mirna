@@ -128,11 +128,13 @@ if (typeof window !== "undefined") {
   queueMicrotask(async () => {
     try {
       await import("./workspace.js");
+      await import("./calendar-v6.js");
       await import("./auto-sync.js");
       await import("./auto-fix.js");
       await import("./data-hub.js");
       await import("./runtime-v5.js");
       await import("./integrations-v5.js");
+      await import("./sidebar-v6.js");
     } catch (error) {
       console.error("Falha ao iniciar o espaço pessoal da Mirna", error);
     }
