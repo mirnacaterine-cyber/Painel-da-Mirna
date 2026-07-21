@@ -15,6 +15,10 @@ function cleanFilename(value) {
   return normalized || "arquivo";
 }
 
+function safeDisplayName(value) {
+  return String(value || "arquivo").replace(/[\r\n]/g, " ").trim().slice(0, 180) || "arquivo";
+}
+
 function rowToFile(row) {
   if (!row) return null;
   return {
@@ -25,6 +29,7 @@ function rowToFile(row) {
     sizeBytes: Number(row.size_bytes || 0),
     note: row.note || "",
     createdAt: row.created_at,
+    updatedAt: row.updated_at || row.created_at,
     storage: "server"
   };
 }
@@ -52,11 +57,18 @@ export async function createLocalStore(projectRoot) {
       mime_type TEXT NOT NULL,
       size_bytes INTEGER NOT NULL,
       note TEXT,
-      created_at TEXT NOT NULL
+      created_at TEXT NOT NULL,
+      updated_at TEXT
     );
     CREATE INDEX IF NOT EXISTS files_destination_idx ON files(destination_id);
     CREATE INDEX IF NOT EXISTS files_created_idx ON files(created_at DESC);
   `);
+
+  const columns = database.prepare("PRAGMA table_info(files)").all();
+  if (!columns.some((column) => column.name === "updated_at")) {
+    database.exec("ALTER TABLE files ADD COLUMN updated_at TEXT");
+  }
+  database.exec("UPDATE files SET updated_at = created_at WHERE updated_at IS NULL");
 
   const getStateStatement = database.prepare("SELECT id, payload, client_updated_at, updated_at FROM app_state WHERE id = ?");
   const putStateStatement = database.prepare(`
@@ -67,11 +79,17 @@ export async function createLocalStore(projectRoot) {
       client_updated_at = excluded.client_updated_at,
       updated_at = excluded.updated_at
   `);
-  const listFilesStatement = database.prepare("SELECT * FROM files ORDER BY created_at DESC");
+  const listFilesStatement = database.prepare("SELECT * FROM files ORDER BY updated_at DESC, created_at DESC");
   const getFileStatement = database.prepare("SELECT * FROM files WHERE id = ?");
   const putFileStatement = database.prepare(`
-    INSERT INTO files (id, destination_id, name, storage_path, mime_type, size_bytes, note, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO files (
+      id, destination_id, name, storage_path, mime_type, size_bytes, note, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const updateFileStatement = database.prepare(`
+    UPDATE files
+    SET destination_id = ?, name = ?, note = ?, updated_at = ?
+    WHERE id = ?
   `);
   const deleteFileStatement = database.prepare("DELETE FROM files WHERE id = ?");
 
@@ -101,8 +119,12 @@ export async function createLocalStore(projectRoot) {
     },
 
     async saveFile({ id, destinationId, note, file }) {
-      if (!DESTINATION_IDS.has(destinationId)) throw Object.assign(new Error("Destino de arquivo inválido."), { status: 400 });
-      if (file.size > this.maxUploadBytes) throw Object.assign(new Error("O arquivo ultrapassa 50 MB, limite do servidor local."), { status: 413 });
+      if (!DESTINATION_IDS.has(destinationId)) {
+        throw Object.assign(new Error("Destino de arquivo inválido."), { status: 400 });
+      }
+      if (file.size > this.maxUploadBytes) {
+        throw Object.assign(new Error("O arquivo ultrapassa 50 MB, limite do servidor local."), { status: 413 });
+      }
 
       const destinationRoot = path.join(uploadRoot, destinationId);
       await mkdir(destinationRoot, { recursive: true });
@@ -114,12 +136,28 @@ export async function createLocalStore(projectRoot) {
       putFileStatement.run(
         id,
         destinationId,
-        file.name,
+        safeDisplayName(file.name),
         storagePath,
         file.type || "application/octet-stream",
         file.size,
-        note || "",
+        String(note || "").slice(0, 180),
+        createdAt,
         createdAt
+      );
+      return rowToFile(getFileStatement.get(id));
+    },
+
+    async updateFile(id, { destinationId, name, note }) {
+      if (!DESTINATION_IDS.has(destinationId)) {
+        throw Object.assign(new Error("Destino de arquivo inválido."), { status: 400 });
+      }
+      if (!getFileStatement.get(id)) return null;
+      updateFileStatement.run(
+        destinationId,
+        safeDisplayName(name),
+        String(note || "").slice(0, 180),
+        new Date().toISOString(),
+        id
       );
       return rowToFile(getFileStatement.get(id));
     },
