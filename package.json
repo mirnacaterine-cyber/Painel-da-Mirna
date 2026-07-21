@@ -1,13 +1,19 @@
 {
   "name": "painel-da-mirna",
-  "version": "1.0.0",
+  "version": "4.0.0",
   "private": true,
-  "description": "Painel pessoal para rotina, estudos, ballet e planos.",
+  "type": "module",
+  "description": "Painel pessoal da Mirna com agenda, Kanban, Spotify, clima, banco e arquivos.",
   "scripts": {
     "dev": "python3 -m http.server 4173",
-    "check": "node --check app.js && node --check app-config.js && node --check sw.js"
+    "check": "node --check app.js && node --check app-config.js && node --check workspace.js && node --check auto-sync.js && node --check spotify.js && node --check sw.js",
+    "test": "node --test tests/*.test.mjs"
   },
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "@vercel/blob": "^2.6.1"
   }
 }
