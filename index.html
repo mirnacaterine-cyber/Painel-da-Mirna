@@ -4,19 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#8f5f72" />
-    <meta name="description" content="Painel pessoal da Mirna para agenda, estudos, ballet, arquivos e rotina." />
+    <meta name="description" content="Painel pessoal da Mirna para rotina, estudos, ballet e planos." />
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' data: blob:; style-src 'self'; script-src 'self'; connect-src 'self' https://geocoding-api.open-meteo.com https://api.open-meteo.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+      content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
     />
     <title>Painel da Mirna 🌷</title>
-    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
     <div class="ambient ambient-one" aria-hidden="true"></div>
     <div class="ambient ambient-two" aria-hidden="true"></div>
 
@@ -29,164 +28,50 @@
         </span>
       </a>
 
-      <nav class="main-nav" aria-label="Seções principais">
-        <a href="#agenda">Agenda</a>
-        <a href="#arquivos">Arquivos</a>
-        <a href="#noticias">Notícias</a>
-      </nav>
-
-      <div class="header-actions">
-        <span class="connection-status" id="connection-status" role="status">Preparando…</span>
-        <button class="icon-button" id="settings-open" type="button" aria-label="Abrir configurações">⚙</button>
+      <nav class="header-actions" aria-label="Ações do painel">
+        <span class="connection-status" id="connection-status" role="status">Online</span>
         <button class="icon-button" id="theme-toggle" type="button" aria-label="Alternar tema">
           <span aria-hidden="true">☾</span>
         </button>
-      </div>
+      </nav>
     </header>
 
-    <main class="page-shell" id="conteudo">
+    <main class="page-shell">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="eyebrow" id="today-label">Hoje</p>
           <h1 id="hero-title">Um lugar calmo para organizar o que importa.</h1>
           <p class="hero-subtitle" id="app-subtitle">
-            Rotina, estudos, ballet, saúde e planos em um só lugar.
+            Rotina, estudos, ballet e nossos planos em um só lugar.
           </p>
           <div class="hero-actions">
-            <button class="button button-primary" id="speak-digest" type="button">Ouvir meu dia</button>
-            <a class="button button-ghost" href="#agenda">Ver agenda</a>
+            <a class="button button-primary" href="#entrada">Anotar na Entrada</a>
+            <a class="button button-ghost" href="#acesso-rapido">Abrir uma área</a>
           </div>
-          <p class="hero-privacy"><span aria-hidden="true">🔒</span> Feito para a Mirna. Sem anúncios, sem rastreamento e sem enviar a rotina para uma IA.</p>
         </div>
 
-        <aside class="today-card digest-card" aria-labelledby="digest-title">
+        <aside class="today-card" aria-labelledby="today-title">
           <div class="today-card-topline">
             <div>
-              <p class="mini-label">Seu dia, em poucas palavras</p>
-              <h2 id="digest-title">Bom dia, Mirna</h2>
+              <p class="mini-label">Ritmo de hoje</p>
+              <h2 id="today-title">Revisão rápida</h2>
             </div>
-            <span class="weather-chip" id="weather-chip">Clima…</span>
+            <span class="progress-number" id="daily-progress-number">0/5</span>
           </div>
-          <p class="digest-copy" id="digest-copy">Preparando sua agenda, o clima e um foco gentil para hoje.</p>
-          <blockquote class="motivation" id="motivation-copy">Um passo inteiro por vez.</blockquote>
-          <div class="digest-footer">
-            <span id="today-date"></span>
-            <button class="text-button" id="refresh-digest" type="button">Atualizar</button>
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-label="Progresso da revisão rápida"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            id="daily-progress-track"
+          >
+            <span id="daily-progress-bar"></span>
           </div>
+          <p class="progress-message" id="daily-progress-message">Comece com um passo pequeno.</p>
+          <div class="today-date" id="today-date"></div>
         </aside>
-      </section>
-
-      <section class="status-strip" aria-label="Estado do painel">
-        <article>
-          <span class="status-icon" aria-hidden="true">🗃️</span>
-          <div><strong id="database-status-title">Banco local ativo</strong><small id="database-status-copy">Suas alterações ficam salvas neste dispositivo.</small></div>
-        </article>
-        <article>
-          <span class="status-icon" aria-hidden="true">🗓️</span>
-          <div><strong id="next-event-title">Agenda pronta</strong><small id="next-event-copy">Conecte o iCal ou crie um compromisso.</small></div>
-        </article>
-        <article>
-          <span class="status-icon" aria-hidden="true">🌦️</span>
-          <div><strong id="weather-status-title">Previsão do dia</strong><small id="weather-status-copy">Buscando Marechal Cândido Rondon.</small></div>
-        </article>
-      </section>
-
-      <section class="section" id="agenda" aria-labelledby="agenda-title">
-        <div class="section-heading section-heading-inline">
-          <div>
-            <p class="eyebrow">Central de agenda</p>
-            <h2 id="agenda-title">Seu tempo, sem atropelo</h2>
-            <p>Compromissos locais e Google Agenda juntos. O link iCal fica guardado apenas no seu banco local.</p>
-          </div>
-          <div class="section-actions">
-            <button class="button button-ghost" id="calendar-refresh" type="button">↻ Atualizar</button>
-            <button class="button button-primary" id="event-open" type="button">+ Novo evento</button>
-          </div>
-        </div>
-
-        <div class="agenda-layout">
-          <aside class="agenda-summary panel">
-            <p class="mini-label">Próximo compromisso</p>
-            <h3 id="agenda-next-title">Nenhum compromisso próximo</h3>
-            <p id="agenda-next-meta">Seu dia tem espaço para respirar.</p>
-            <div class="countdown" id="agenda-countdown" hidden></div>
-            <button class="text-button" id="calendar-settings-open" type="button">Conectar Google Agenda</button>
-          </aside>
-
-          <div class="panel timeline-panel">
-            <div class="timeline" id="agenda-timeline" aria-live="polite"></div>
-            <p class="empty-state" id="agenda-empty">Nenhum evento nos próximos 7 dias. Você pode criar um acima.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="arquivos" aria-labelledby="files-title">
-        <div class="section-heading">
-          <p class="eyebrow">Arquivo pessoal</p>
-          <h2 id="files-title">Escolha o destino antes de guardar</h2>
-          <p>O arquivo recebe a mesma organização das suas áreas: Ballet, Faculdade, Trabalho, Casinha e as demais.</p>
-        </div>
-
-        <div class="file-layout">
-          <article class="panel upload-panel">
-            <form id="upload-form">
-              <div class="drop-zone" id="drop-zone">
-                <span class="drop-icon" aria-hidden="true">📎</span>
-                <h3>Arraste um arquivo ou escolha no dispositivo</h3>
-                <p>Na nuvem, o limite desta versão é 4 MB por arquivo. No banco local, arquivos maiores continuam disponíveis neste navegador.</p>
-                <label class="button button-ghost" for="file-input">Escolher arquivo</label>
-                <input id="file-input" name="file" type="file" hidden />
-                <strong class="selected-file" id="selected-file">Nenhum arquivo selecionado</strong>
-              </div>
-
-              <div class="form-grid">
-                <label>
-                  <span>Destino</span>
-                  <select id="file-destination" name="destination" required></select>
-                </label>
-                <label>
-                  <span>Observação opcional</span>
-                  <input id="file-note" name="note" type="text" maxlength="180" placeholder="Ex.: material da aula de terça" />
-                </label>
-              </div>
-
-              <div class="upload-actions">
-                <small id="storage-estimate">Calculando espaço disponível…</small>
-                <button class="button button-primary" id="upload-submit" type="submit">Salvar arquivo</button>
-              </div>
-              <div class="upload-progress" id="upload-progress" hidden>
-                <span></span>
-              </div>
-            </form>
-          </article>
-
-          <article class="panel file-library-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">Biblioteca</p>
-                <h3>Arquivos salvos</h3>
-              </div>
-              <select id="file-filter" aria-label="Filtrar arquivos por destino">
-                <option value="all">Todos os destinos</option>
-              </select>
-            </div>
-            <ul class="file-list" id="file-list"></ul>
-            <p class="empty-state" id="files-empty">Ainda não há arquivos guardados.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section" id="noticias" aria-labelledby="news-title">
-        <div class="section-heading section-heading-inline">
-          <div>
-            <p class="eyebrow">Radar feito para você</p>
-            <h2 id="news-title">Ballet, GR e faculdade — só o que conversa com sua vida</h2>
-            <p>Sem política aleatória, fofoca ou manchetes genéricas ocupando espaço.</p>
-          </div>
-          <button class="button button-ghost" id="news-refresh" type="button">↻ Atualizar notícias</button>
-        </div>
-        <div class="news-grid" id="news-grid" aria-live="polite"></div>
-        <p class="panel-note news-note">As manchetes vêm do Google News RSS e são filtradas localmente pelos temas da Mirna.</p>
       </section>
 
       <section class="section" id="acesso-rapido" aria-labelledby="folders-title">
@@ -213,12 +98,10 @@
               <p class="eyebrow">Todos os dias</p>
               <h2 id="daily-title">Revisão rápida</h2>
             </div>
-            <span class="progress-number" id="daily-progress-number">0/5</span>
+            <button class="text-button" id="reset-daily" type="button">Recomeçar</button>
           </div>
-          <div class="progress-track" role="progressbar" aria-label="Progresso da revisão rápida" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="daily-progress-track"><span id="daily-progress-bar"></span></div>
-          <p class="progress-message" id="daily-progress-message">Comece com um passo pequeno.</p>
           <div class="checklist" id="daily-checklist"></div>
-          <button class="text-button" id="reset-daily" type="button">Recomeçar lista diária</button>
+          <p class="panel-note">A lista diária recomeça automaticamente quando o dia muda.</p>
         </article>
 
         <article class="panel checklist-panel" aria-labelledby="weekly-title">
@@ -239,12 +122,21 @@
           <div class="capture-copy">
             <p class="eyebrow">Entrada rápida</p>
             <h2 id="capture-title">Tire da cabeça antes que escape</h2>
-            <p>Registre uma tarefa, ideia, compra ou prazo. Agora tudo passa pelo banco do painel.</p>
+            <p>
+              Registre uma tarefa, ideia, compra, prazo ou arquivo para organizar depois. Tudo fica salvo
+              somente neste navegador.
+            </p>
           </div>
 
           <form class="capture-form" id="capture-form">
             <label class="sr-only" for="capture-input">Nova anotação</label>
-            <textarea id="capture-input" rows="3" maxlength="280" placeholder="Ex.: separar músicas da aula de quinta…" required></textarea>
+            <textarea
+              id="capture-input"
+              rows="3"
+              maxlength="280"
+              placeholder="Ex.: separar músicas da aula de quinta…"
+              required
+            ></textarea>
             <div class="capture-form-footer">
               <span id="capture-counter" aria-live="polite">0/280</span>
               <button class="button button-primary" type="submit">Guardar na Entrada</button>
@@ -278,7 +170,7 @@
         <div>
           <p class="eyebrow">Cópia de segurança</p>
           <h2 id="utility-title">Leve seus dados com você</h2>
-          <p>Exporte checklists, agenda local e anotações. Credenciais e links secretos ficam de fora da cópia.</p>
+          <p>Exporte checklists e anotações em JSON ou restaure um arquivo salvo anteriormente.</p>
         </div>
         <div class="utility-actions">
           <button class="button button-ghost" id="export-data" type="button">Exportar dados</button>
@@ -291,127 +183,16 @@
     <footer class="site-footer">
       <div>
         <strong>Seu painel, seu ritmo.</strong>
-        <p>O banco local funciona offline. A nuvem é opcional e protegida por token.</p>
+        <p>Os links continuam protegidos pelas permissões do Google Drive.</p>
       </div>
       <div class="footer-meta">
-        <span id="footer-storage-mode">Banco local</span>
+        <span>Dados locais</span>
         <span aria-hidden="true">•</span>
         <span>Sem rastreamento</span>
         <span aria-hidden="true">•</span>
         <span id="footer-year"></span>
       </div>
     </footer>
-
-    <dialog id="settings-dialog" aria-labelledby="settings-title">
-      <form method="dialog" id="settings-form" class="dialog-card">
-        <div class="dialog-header">
-          <div>
-            <p class="eyebrow">Configuração privada</p>
-            <h2 id="settings-title">Deixar o painel com a sua cara</h2>
-          </div>
-          <button class="dialog-close" value="cancel" type="submit" aria-label="Fechar">×</button>
-        </div>
-
-        <div class="settings-sections">
-          <section>
-            <h3>Clima & voz</h3>
-            <label>
-              <span>Cidade da previsão</span>
-              <input id="settings-city" type="text" autocomplete="address-level2" />
-            </label>
-            <label class="toggle-row">
-              <input id="settings-auto-speak" type="checkbox" />
-              <span><strong>Ler o briefing na primeira interação do dia</strong><small>O navegador exige um toque ou clique antes de liberar a voz.</small></span>
-            </label>
-          </section>
-
-          <section id="calendar-settings-section">
-            <h3>Google Agenda</h3>
-            <label>
-              <span>Nome da agenda</span>
-              <input id="settings-calendar-name" type="text" maxlength="60" />
-            </label>
-            <label>
-              <span>Endereço secreto em formato iCal</span>
-              <input id="settings-calendar-url" type="password" inputmode="url" autocomplete="off" placeholder="https://calendar.google.com/calendar/ical/…/basic.ics" />
-            </label>
-            <p class="settings-help">Google Agenda no computador → ⚙ Configurações → escolha a agenda → <strong>Integrar agenda</strong> → copie o <strong>Endereço secreto em formato iCal</strong>. Ele dá acesso de leitura e funciona como uma senha.</p>
-          </section>
-
-          <section>
-            <h3>Sincronização em nuvem</h3>
-            <label>
-              <span>Token pessoal do painel</span>
-              <input id="settings-cloud-token" type="password" autocomplete="off" placeholder="Definido como PAINEL_API_TOKEN na Vercel" />
-            </label>
-            <p class="settings-help">Sem token, o painel continua completo no banco local. Com Neon + Vercel Blob configurados, os dados e arquivos podem acompanhar você em outros dispositivos.</p>
-          </section>
-        </div>
-
-        <div class="dialog-actions">
-          <button class="button button-ghost" value="cancel" type="submit">Cancelar</button>
-          <button class="button button-primary" id="settings-save" type="button">Salvar configurações</button>
-        </div>
-      </form>
-    </dialog>
-
-    <dialog id="event-dialog" aria-labelledby="event-dialog-title">
-      <form method="dialog" id="event-form" class="dialog-card event-form">
-        <div class="dialog-header">
-          <div>
-            <p class="eyebrow">Novo compromisso</p>
-            <h2 id="event-dialog-title">Adicionar à agenda da Mirna</h2>
-          </div>
-          <button class="dialog-close" value="cancel" type="submit" aria-label="Fechar">×</button>
-        </div>
-
-        <label>
-          <span>Título</span>
-          <input id="event-title" name="title" type="text" maxlength="120" required placeholder="Ex.: Aula de Ballet — turma avançada" />
-        </label>
-        <div class="form-grid three-columns">
-          <label>
-            <span>Data</span>
-            <input id="event-date" name="date" type="date" required />
-          </label>
-          <label>
-            <span>Início</span>
-            <input id="event-start" name="start" type="time" value="09:00" />
-          </label>
-          <label>
-            <span>Fim</span>
-            <input id="event-end" name="end" type="time" value="10:00" />
-          </label>
-        </div>
-        <label class="toggle-row compact-toggle">
-          <input id="event-all-day" name="allDay" type="checkbox" />
-          <span><strong>Evento de dia inteiro</strong></span>
-        </label>
-        <div class="form-grid">
-          <label>
-            <span>Área</span>
-            <select id="event-category" name="category"></select>
-          </label>
-          <label>
-            <span>Local</span>
-            <input id="event-location" name="location" type="text" maxlength="140" placeholder="Ex.: Martin Luther" />
-          </label>
-        </div>
-        <label>
-          <span>Observações</span>
-          <textarea id="event-description" name="description" rows="3" maxlength="500" placeholder="Materiais, deslocamento, lembretes…"></textarea>
-        </label>
-        <label class="toggle-row">
-          <input id="event-open-google" type="checkbox" checked />
-          <span><strong>Abrir também no Google Agenda para confirmar</strong><small>O evento é salvo no painel primeiro; depois o Google abre preenchido.</small></span>
-        </label>
-
-        <div class="dialog-actions">
-          <button class="button button-ghost" value="cancel" type="submit">Cancelar</button>
-          <button class="button button-primary" id="event-save" type="button">Salvar evento</button>
-        </div>
-      </form>
-    </dialog>
 
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
@@ -451,6 +232,6 @@
       </li>
     </template>
 
-    <script type="module" src="./app.js"></script>
+    <script type="module" src="/app.js"></script>
   </body>
 </html>

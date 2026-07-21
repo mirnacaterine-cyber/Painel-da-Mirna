@@ -1,26 +1,13 @@
 {
   "name": "painel-da-mirna",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "private": true,
-  "type": "module",
-  "description": "Painel pessoal da Mirna com agenda, banco de dados, arquivos, notícias e briefing diário.",
+  "description": "Painel pessoal para rotina, estudos, ballet e planos.",
   "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js",
-    "check": "node scripts/check.mjs",
-    "test": "node --test tests/*.test.mjs",
-    "test:browser": "node scripts/browser-smoke.mjs",
-    "validate": "npm run check && npm test",
-    "validate:full": "npm run validate && npm run test:browser"
+    "dev": "python3 -m http.server 4173",
+    "check": "node --check app.js && node --check app-config.js && node --check sw.js"
   },
   "engines": {
-    "node": "22.x"
-  },
-  "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
-    "@vercel/blob": "^2.6.1"
-  },
-  "devDependencies": {
-    "esbuild": "^0.28.1"
+    "node": ">=18"
   }
 }

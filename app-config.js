@@ -2,13 +2,10 @@ export const APP_CONFIG = {
   ownerName: "Mirna",
   appName: "Painel da Mirna",
   eyebrow: "Ateliê da Mirna",
-  subtitle: "Rotina, estudos, ballet, saúde e planos em um só lugar.",
-  timezone: "America/Sao_Paulo",
-  defaultCity: "Marechal Cândido Rondon, Paraná",
+  subtitle: "Rotina, estudos, ballet e nossos planos em um só lugar.",
   folders: [
     {
       id: "00",
-      slug: "painel-entrada",
       label: "Painel & Entrada",
       icon: "🌷",
       description: "Ponto de partida e arquivos recém-chegados.",
@@ -17,7 +14,6 @@ export const APP_CONFIG = {
     },
     {
       id: "01",
-      slug: "ballet-gr-aulas",
       label: "Ballet, GR & Aulas",
       icon: "🩰",
       description: "Planejamentos, alunas, aulas e materiais.",
@@ -26,7 +22,6 @@ export const APP_CONFIG = {
     },
     {
       id: "02",
-      slug: "faculdade",
       label: "Faculdade",
       icon: "🎓",
       description: "Direito, Dança, trabalhos e prazos.",
@@ -35,7 +30,6 @@ export const APP_CONFIG = {
     },
     {
       id: "03",
-      slug: "trabalho-financeiro",
       label: "Trabalho & Financeiro",
       icon: "💼",
       description: "Trabalho, gastos, comprovantes e organização.",
@@ -44,7 +38,6 @@ export const APP_CONFIG = {
     },
     {
       id: "04",
-      slug: "documentos-pessoais",
       label: "Documentos Pessoais",
       icon: "🔐",
       description: "Documentos importantes e registros privados.",
@@ -54,16 +47,14 @@ export const APP_CONFIG = {
     },
     {
       id: "05",
-      slug: "casinha-compartilhada",
       label: "Casinha compartilhada",
       icon: "🏡",
       description: "Listas, ideias e decisões da casa.",
-      href: "",
+      href: "https://drive.google.com/drive/folders/1t_Lopcp7WOn71hWej0GFHY_lkb2bkHhC",
       tone: "green"
     },
     {
       id: "06",
-      slug: "viagens-festivais",
       label: "Viagens & Festivais",
       icon: "✈️",
       description: "Roteiros, reservas, festivais e memórias.",
@@ -72,7 +63,6 @@ export const APP_CONFIG = {
     },
     {
       id: "07",
-      slug: "familia-memorias",
       label: "Família & Memórias",
       icon: "💛",
       description: "Fotos, histórias e momentos especiais.",
@@ -81,7 +71,6 @@ export const APP_CONFIG = {
     },
     {
       id: "08",
-      slug: "livros-cursos-referencias",
       label: "Livros, Cursos & Referências",
       icon: "📚",
       description: "Leituras, formações e repertório.",
@@ -90,7 +79,6 @@ export const APP_CONFIG = {
     },
     {
       id: "99",
-      slug: "arquivo-historico",
       label: "Arquivo Histórico",
       icon: "🗄️",
       description: "Materiais encerrados que ainda merecem ser guardados.",
@@ -101,7 +89,7 @@ export const APP_CONFIG = {
   dailyTasks: [
     "Conferir a agenda e os deslocamentos do dia.",
     "Separar materiais das aulas.",
-    "Verificar prazos de Direito e Dança.",
+    "Verificar prazos das faculdades.",
     "Registrar gastos e comprovantes.",
     "Colocar arquivos novos na Entrada."
   ],
@@ -133,38 +121,5 @@ export const APP_CONFIG = {
       icon: "🤍",
       text: "Preservar tempo para fé, saúde, família, Vinicius e descanso."
     }
-  ],
-  newsTopics: [
-    {
-      id: "ballet",
-      label: "Ballet & Dança",
-      icon: "🩰",
-      query: "(ballet OR balé OR \"dança clássica\")",
-      requiredTerms: ["ballet", "balé", "dança", "bailarina", "bailarino", "coreografia"]
-    },
-    {
-      id: "gr",
-      label: "Ginástica Rítmica",
-      icon: "🎀",
-      query: "(\"ginástica rítmica\" OR \"rhythmic gymnastics\")",
-      requiredTerms: ["ginástica rítmica", "rítmica", "rhythmic gymnastics", "ginasta"]
-    },
-    {
-      id: "faculdade",
-      label: "Faculdade · Direito & Dança",
-      icon: "🎓",
-      query: "(UNIOESTE OR \"faculdade de Direito\" OR \"curso de Direito\" OR \"graduação em Dança\")",
-      requiredTerms: ["unioeste", "direito", "faculdade", "universidade", "graduação", "dança"]
-    }
-  ],
-  motivationalPhrases: [
-    "Seu corpo também faz parte do plano. Constância sem violência.",
-    "Uma aula bem cuidada hoje é um tijolo na futura escola de ballet.",
-    "Direito, Dança e descanso podem caminhar juntos — um passo inteiro por vez.",
-    "Organizar não é endurecer a vida; é abrir espaço para ela acontecer.",
-    "A delicadeza também é disciplina: prepare o essencial e preserve sua energia.",
-    "Você não precisa resolver a semana inteira hoje. Cuide bem do próximo movimento.",
-    "O sonho da escola cresce nas pequenas coisas: uma aula, uma anotação, um cuidado.",
-    "Seu ritmo não precisa parecer com o de ninguém. Precisa apenas continuar sendo sustentável."
   ]
 };
