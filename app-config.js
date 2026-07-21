@@ -39,18 +39,22 @@ export const APP_CONFIG = {
 
 if (typeof window !== "undefined") {
   queueMicrotask(async () => {
-    try {
-      await import("./sidebar-v7.js");
-      await import("./atelier.js");
-      await import("./atelier-nav.js");
-      await import("./workspace.js");
-      await import("./calendar-v6.js");
-      await import("./auto-sync.js");
-      await import("./auto-fix.js");
-      await import("./data-hub.js");
-      await import("./runtime-v5.js");
-    } catch (error) {
-      console.error("Falha ao iniciar o espaço pessoal da Mirna", error);
-    }
+    const modulePaths = [
+      "./sidebar-v7.js",
+      "./atelier.js",
+      "./atelier-nav.js",
+      "./workspace.js",
+      "./calendar-v6.js",
+      "./auto-sync.js",
+      "./auto-fix.js",
+      "./data-hub.js",
+      "./runtime-v5.js"
+    ];
+    const results = await Promise.allSettled(modulePaths.map((path) => import(path)));
+    results.forEach((result, index) => {
+      if (result.status === "rejected") {
+        console.error(`Falha ao iniciar ${modulePaths[index]}`, result.reason);
+      }
+    });
   });
 }
