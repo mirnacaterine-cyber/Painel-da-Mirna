@@ -133,7 +133,6 @@ if (typeof window !== "undefined") {
       await import("./auto-fix.js");
       await import("./data-hub.js");
       await import("./runtime-v5.js");
-      await import("./integrations-v5.js");
       await import("./sidebar-v6.js");
     } catch (error) {
       console.error("Falha ao iniciar o espaço pessoal da Mirna", error);
