@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { fetchCalendarIcs, fetchNewsItems } from "./feed-utils.js";
 
+const DESTINATION_IDS = new Set(["00", "01", "02", "03", "04", "05", "06", "07", "08", "99"]);
 const COMMON_HEADERS = {
   "Cache-Control": "no-store",
   "X-Content-Type-Options": "nosniff",
@@ -13,7 +14,9 @@ function json(data, status = 200, extraHeaders = {}) {
 
 function errorResponse(error) {
   const status = Number(error?.status) || 500;
-  const message = status >= 500 && !error?.message ? "O servidor encontrou um erro." : error?.message || "Não foi possível concluir esta ação.";
+  const message = status >= 500 && !error?.message
+    ? "O servidor encontrou um erro."
+    : error?.message || "Não foi possível concluir esta ação.";
   return json({ ok: false, message }, status);
 }
 
@@ -30,7 +33,9 @@ function authorize(request, { local = false } = {}) {
   if (!expected) {
     return json({ ok: false, message: "Defina PAINEL_API_TOKEN na Vercel antes de ativar dados privados." }, 503);
   }
-  const received = request.headers.get("x-painel-token") || request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") || "";
+  const received = request.headers.get("x-painel-token")
+    || request.headers.get("authorization")?.replace(/^Bearer\s+/i, "")
+    || "";
   if (!received || !safeEquals(received, expected)) {
     return json({ ok: false, message: "Token pessoal ausente ou inválido." }, 401);
   }
@@ -42,7 +47,19 @@ function randomId(prefix) {
 }
 
 function safeFilename(value = "arquivo") {
-  return String(value).replace(/[\r\n"]/g, "_").slice(0, 180) || "arquivo";
+  return String(value).replace(/[\r\n"]/g, "_").trim().slice(0, 180) || "arquivo";
+}
+
+function normalizedFileMetadata(body) {
+  const id = String(body?.id || "").trim().slice(0, 180);
+  const name = safeFilename(body?.name || "arquivo");
+  const note = String(body?.note || "").trim().slice(0, 180);
+  const destinationId = String(body?.destinationId || "00").trim();
+  if (!id) throw Object.assign(new Error("Arquivo não informado."), { status: 400 });
+  if (!DESTINATION_IDS.has(destinationId)) {
+    throw Object.assign(new Error("Destino de arquivo inválido."), { status: 400 });
+  }
+  return { id, name, note, destinationId };
 }
 
 export function healthResponse({ mode, database, files, news = true, calendar = true, requiresToken = false }) {
@@ -77,7 +94,9 @@ export async function handleState(request, store, options = {}) {
         return json({ ok: false, message: "Estado inválido." }, 400);
       }
       const serializedSize = Buffer.byteLength(JSON.stringify(body.payload));
-      if (serializedSize > 2 * 1024 * 1024) return json({ ok: false, message: "O estado ultrapassa o limite de 2 MB." }, 413);
+      if (serializedSize > 2 * 1024 * 1024) {
+        return json({ ok: false, message: "O estado ultrapassa o limite de 2 MB." }, 413);
+      }
       const row = await store.putState(id, body.payload, body.clientUpdatedAt || null);
       return json(row);
     }
@@ -94,13 +113,28 @@ export async function handleFiles(request, store, options = {}) {
 
   try {
     if (request.method === "GET") return json(await store.listFiles());
+
+    if (request.method === "PATCH") {
+      if (typeof store.updateFile !== "function") {
+        return json({ ok: false, message: "Este armazenamento ainda não aceita atualizações." }, 501);
+      }
+      const metadata = normalizedFileMetadata(await request.json());
+      const updated = await store.updateFile(metadata.id, metadata);
+      return updated
+        ? json(updated)
+        : json({ ok: false, message: "Arquivo não encontrado." }, 404);
+    }
+
     if (request.method === "DELETE") {
       const id = new URL(request.url).searchParams.get("id");
       if (!id) return json({ ok: false, message: "Arquivo não informado." }, 400);
       const deleted = await store.deleteFile(String(id).slice(0, 180));
-      return deleted ? json({ ok: true }) : json({ ok: false, message: "Arquivo não encontrado." }, 404);
+      return deleted
+        ? json({ ok: true })
+        : json({ ok: false, message: "Arquivo não encontrado." }, 404);
     }
-    return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "GET, DELETE" });
+
+    return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "GET, PATCH, DELETE" });
   } catch (error) {
     return errorResponse(error);
   }
@@ -119,7 +153,10 @@ export async function handleUpload(request, store, options = {}) {
       return json({ ok: false, message: "Nenhum arquivo foi recebido." }, 400);
     }
     if (file.size > store.maxUploadBytes) {
-      return json({ ok: false, message: `O arquivo ultrapassa o limite de ${Math.round(store.maxUploadBytes / 1024 / 1024)} MB deste armazenamento.` }, 413);
+      return json({
+        ok: false,
+        message: `O arquivo ultrapassa o limite de ${Math.round(store.maxUploadBytes / 1024 / 1024)} MB deste armazenamento.`
+      }, 413);
     }
     const saved = await store.saveFile({ id: randomId("file"), destinationId, note, file });
     return json(saved, 201);
@@ -159,14 +196,18 @@ export async function handleNews(request) {
     const query = url.searchParams.get("q") || "";
     const limit = Math.min(15, Math.max(1, Number(url.searchParams.get("limit") || 10)));
     const items = await fetchNewsItems(query, limit);
-    return json({ ok: true, items, fetchedAt: new Date().toISOString() }, 200, { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" });
+    return json({ ok: true, items, fetchedAt: new Date().toISOString() }, 200, {
+      "Cache-Control": "public, max-age=300, stale-while-revalidate=600"
+    });
   } catch (error) {
     return errorResponse(error);
   }
 }
 
 export async function handleCalendar(request) {
-  if (request.method !== "POST") return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "POST" });
+  if (request.method !== "POST") {
+    return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "POST" });
+  }
   try {
     const body = await request.json();
     const ics = await fetchCalendarIcs(body?.url);
