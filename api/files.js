@@ -6,9 +6,13 @@ async function run(request) {
     const store = await createCloudStore();
     return handleFiles(request, store);
   } catch (error) {
-    return Response.json({ ok: false, message: error?.message || "Arquivos indisponíveis." }, { status: Number(error?.status) || 503 });
+    return Response.json(
+      { ok: false, message: error?.message || "Arquivos indisponíveis." },
+      { status: Number(error?.status) || 503 }
+    );
   }
 }
 
 export const GET = run;
+export const PATCH = run;
 export const DELETE = run;
