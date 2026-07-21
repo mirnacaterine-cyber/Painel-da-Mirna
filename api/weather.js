@@ -1,13 +1,14 @@
 const DEFAULT_CITY = "Marechal Cândido Rondon, Paraná";
 
 function numberParam(value, min, max) {
+  if (value == null || String(value).trim() === "") return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed >= min && parsed <= max ? parsed : null;
 }
 
 async function fetchJson(url) {
   const response = await fetch(url, {
-    headers: { Accept: "application/json", "User-Agent": "Painel-da-Mirna/4.0" },
+    headers: { Accept: "application/json", "User-Agent": "Painel-da-Mirna/4.1" },
     signal: AbortSignal.timeout(9000)
   });
   if (!response.ok) throw new Error(`Serviço de clima respondeu ${response.status}.`);
