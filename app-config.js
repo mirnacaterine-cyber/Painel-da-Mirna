@@ -129,6 +129,7 @@ if (typeof window !== "undefined") {
     try {
       await import("./workspace.js");
       await import("./auto-sync.js");
+      await import("./auto-fix.js");
     } catch (error) {
       console.error("Falha ao iniciar o espaço pessoal da Mirna", error);
     }
