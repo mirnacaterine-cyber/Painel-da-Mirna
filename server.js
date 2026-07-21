@@ -36,17 +36,27 @@ const MIME_TYPES = new Map([
 ]);
 
 function isApiPath(pathname) {
-  return pathname === "/api/health" || pathname === "/api/state" || pathname === "/api/upload" || pathname === "/api/files" || pathname === "/api/file" || pathname === "/api/news" || pathname === "/api/calendar";
+  return pathname === "/api/health"
+    || pathname === "/api/state"
+    || pathname === "/api/upload"
+    || pathname === "/api/files"
+    || pathname === "/api/file"
+    || pathname === "/api/news"
+    || pathname === "/api/calendar";
 }
 
 async function readRequestBody(request) {
   const contentLength = Number(request.headers["content-length"] || 0);
-  if (contentLength > MAX_BODY_BYTES) throw Object.assign(new Error("Corpo da requisição muito grande."), { status: 413 });
+  if (contentLength > MAX_BODY_BYTES) {
+    throw Object.assign(new Error("Corpo da requisição muito grande."), { status: 413 });
+  }
   const chunks = [];
   let total = 0;
   for await (const chunk of request) {
     total += chunk.length;
-    if (total > MAX_BODY_BYTES) throw Object.assign(new Error("Corpo da requisição muito grande."), { status: 413 });
+    if (total > MAX_BODY_BYTES) {
+      throw Object.assign(new Error("Corpo da requisição muito grande."), { status: 413 });
+    }
     chunks.push(chunk);
   }
   return Buffer.concat(chunks);
@@ -58,7 +68,9 @@ async function toWebRequest(request) {
     method: request.method,
     headers: request.headers
   };
-  if (!["GET", "HEAD"].includes(request.method || "GET")) init.body = await readRequestBody(request);
+  if (!["GET", "HEAD"].includes(request.method || "GET")) {
+    init.body = await readRequestBody(request);
+  }
   return new Request(url, init);
 }
 
@@ -77,7 +89,7 @@ async function handleApi(request, response, pathname) {
     if (request.method === "OPTIONS") {
       response.writeHead(204, {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, PUT, POST, PATCH, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, X-Painel-Token",
         "Access-Control-Max-Age": "86400"
       });
@@ -116,10 +128,16 @@ async function handleApi(request, response, pathname) {
 
     const headers = new Headers(webResponse.headers);
     headers.set("Access-Control-Allow-Origin", "*");
-    const withCors = new Response(webResponse.body, { status: webResponse.status, statusText: webResponse.statusText, headers });
+    const withCors = new Response(webResponse.body, {
+      status: webResponse.status,
+      statusText: webResponse.statusText,
+      headers
+    });
     await sendWebResponse(withCors, response);
   } catch (error) {
-    response.writeHead(Number(error?.status) || 500, { "Content-Type": "application/json; charset=utf-8" });
+    response.writeHead(Number(error?.status) || 500, {
+      "Content-Type": "application/json; charset=utf-8"
+    });
     response.end(JSON.stringify({ ok: false, message: error?.message || "Erro interno." }));
   }
 }
@@ -150,7 +168,9 @@ async function serveStatic(request, response, pathname) {
     response.writeHead(200, {
       "Content-Type": MIME_TYPES.get(extension) || "application/octet-stream",
       "Content-Length": body.length,
-      "Cache-Control": extension === ".html" || extension === ".js" || extension === ".css" ? "no-cache" : "public, max-age=3600",
+      "Cache-Control": [".html", ".js", ".css"].includes(extension)
+        ? "no-cache"
+        : "public, max-age=3600",
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "strict-origin-when-cross-origin"
     });
