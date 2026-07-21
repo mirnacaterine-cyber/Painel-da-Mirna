@@ -11,7 +11,7 @@ let observer;
 let attempts = 0;
 
 function linkMarkup(item) {
-  return `<a class="ms7-link" href="#pane-${item.pane}" data-ms7-target="atelie" data-atelier-pane="${item.pane}" title="${item.label}"><span class="ms7-icon" aria-hidden="true">${item.icon}</span><span class="ms7-label">${item.label}</span></a>`;
+  return `<a class="ms7-link" href="#pane-${item.pane}" data-ms7-target="pane-${item.pane}" data-atelier-pane="${item.pane}" title="${item.label}"><span class="ms7-icon" aria-hidden="true">${item.icon}</span><span class="ms7-label">${item.label}</span></a>`;
 }
 
 function installAtelierGroup() {
