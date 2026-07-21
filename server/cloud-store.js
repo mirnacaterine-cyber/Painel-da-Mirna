@@ -13,6 +13,10 @@ function cleanFilename(value) {
   return normalized || "arquivo";
 }
 
+function safeDisplayName(value) {
+  return String(value || "arquivo").replace(/[\r\n]/g, " ").trim().slice(0, 180) || "arquivo";
+}
+
 async function getSql() {
   if (!process.env.DATABASE_URL) {
     throw Object.assign(new Error("Banco Neon ainda não foi conectado ao projeto."), { status: 503 });
@@ -45,9 +49,11 @@ async function ensureSchema() {
           mime_type TEXT NOT NULL,
           size_bytes BIGINT NOT NULL,
           note TEXT,
-          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
       `;
+      await sql`ALTER TABLE mirna_files ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`;
       await sql`CREATE INDEX IF NOT EXISTS mirna_files_destination_idx ON mirna_files(destination_id)`;
       await sql`CREATE INDEX IF NOT EXISTS mirna_files_created_idx ON mirna_files(created_at DESC)`;
     })();
@@ -65,6 +71,7 @@ function normalizeFileRow(row) {
     sizeBytes: Number(row.size_bytes || 0),
     note: row.note || "",
     createdAt: new Date(row.created_at).toISOString(),
+    updatedAt: new Date(row.updated_at || row.created_at).toISOString(),
     storage: "server"
   };
 }
@@ -116,16 +123,18 @@ export async function createCloudStore() {
 
     async listFiles() {
       const rows = await sql`
-        SELECT id, destination_id, name, mime_type, size_bytes, note, created_at
+        SELECT id, destination_id, name, mime_type, size_bytes, note, created_at, updated_at
         FROM mirna_files
-        ORDER BY created_at DESC
+        ORDER BY updated_at DESC, created_at DESC
         LIMIT 500
       `;
       return rows.map(normalizeFileRow);
     },
 
     async saveFile({ id, destinationId, note, file }) {
-      if (!DESTINATION_IDS.has(destinationId)) throw Object.assign(new Error("Destino de arquivo inválido."), { status: 400 });
+      if (!DESTINATION_IDS.has(destinationId)) {
+        throw Object.assign(new Error("Destino de arquivo inválido."), { status: 400 });
+      }
       if (file.size > this.maxUploadBytes) {
         throw Object.assign(new Error("Na nuvem, esta versão aceita arquivos de até 4 MB. Arquivos maiores continuam disponíveis no banco local."), { status: 413 });
       }
@@ -145,20 +154,38 @@ export async function createCloudStore() {
       });
       const rows = await sql`
         INSERT INTO mirna_files (
-          id, destination_id, name, blob_pathname, blob_url, mime_type, size_bytes, note, created_at
+          id, destination_id, name, blob_pathname, blob_url, mime_type,
+          size_bytes, note, created_at, updated_at
         )
         VALUES (
-          ${id}, ${destinationId}, ${file.name}, ${blob.pathname}, ${blob.url},
-          ${file.type || "application/octet-stream"}, ${file.size}, ${note || ""}, NOW()
+          ${id}, ${destinationId}, ${safeDisplayName(file.name)}, ${blob.pathname}, ${blob.url},
+          ${file.type || "application/octet-stream"}, ${file.size}, ${String(note || "").slice(0, 180)}, NOW(), NOW()
         )
-        RETURNING id, destination_id, name, mime_type, size_bytes, note, created_at
+        RETURNING id, destination_id, name, mime_type, size_bytes, note, created_at, updated_at
+      `;
+      return normalizeFileRow(rows[0]);
+    },
+
+    async updateFile(id, { destinationId, name, note }) {
+      if (!DESTINATION_IDS.has(destinationId)) {
+        throw Object.assign(new Error("Destino de arquivo inválido."), { status: 400 });
+      }
+      const rows = await sql`
+        UPDATE mirna_files
+        SET
+          destination_id = ${destinationId},
+          name = ${safeDisplayName(name)},
+          note = ${String(note || "").slice(0, 180)},
+          updated_at = NOW()
+        WHERE id = ${id}
+        RETURNING id, destination_id, name, mime_type, size_bytes, note, created_at, updated_at
       `;
       return normalizeFileRow(rows[0]);
     },
 
     async getFile(id) {
       const rows = await sql`
-        SELECT id, destination_id, name, blob_pathname, mime_type, size_bytes, note, created_at
+        SELECT id, destination_id, name, blob_pathname, mime_type, size_bytes, note, created_at, updated_at
         FROM mirna_files
         WHERE id = ${id}
         LIMIT 1
@@ -168,7 +195,11 @@ export async function createCloudStore() {
       const { get } = await import("@vercel/blob");
       const result = await get(row.blob_pathname, { access: "private", useCache: false });
       if (!result || result.statusCode !== 200 || !result.stream) return null;
-      return { metadata: normalizeFileRow(row), body: result.stream, etag: result.blob?.etag || null };
+      return {
+        metadata: normalizeFileRow(row),
+        body: result.stream,
+        etag: result.blob?.etag || null
+      };
     },
 
     async deleteFile(id) {
