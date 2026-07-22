@@ -1,4 +1,4 @@
-const CACHE_NAME="atelie-da-mirna-v16";
+const CACHE_NAME="atelie-da-mirna-v17";
 const HOME_SHELL=["/","/index.html","/portal-shell-v16.css","/portal-shell-v16.js","/home-v16.css","/app.js","/app-config.js","/icon.svg","/manifest.webmanifest"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(HOME_SHELL)));self.skipWaiting();});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME).map(key=>caches.delete(key)))));self.clients.claim();});
