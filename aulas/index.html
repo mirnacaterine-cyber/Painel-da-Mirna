@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#8f5f72" />
+    <meta name="description" content="Central de aulas, dança, turmas, chamadas e evolução pedagógica da Mirna." />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: blob: https://i.scdn.co https://mosaic.scdn.co; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-src https://open.spotify.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    />
+    <title>Aulas &amp; Dança · Ateliê da Mirna</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/aulas/aulas.css?release=15.0" />
+  </head>
+  <body>
+    <header class="dance-topbar">
+      <a class="dance-back" href="/" aria-label="Voltar ao painel geral">← <span>Painel geral</span></a>
+      <div class="dance-brand">
+        <span class="dance-mark" aria-hidden="true">🩰</span>
+        <span><strong>Aulas &amp; Dança</strong><small>Ateliê da Mirna</small></span>
+      </div>
+      <span class="dance-release" id="dance-status">Preparando…</span>
+    </header>
+
+    <main class="dance-shell">
+      <aside class="dance-nav" aria-label="Áreas de Aulas e Dança">
+        <div class="dance-nav-copy">
+          <strong>Central pedagógica</strong>
+          <small>Cada etapa no seu lugar.</small>
+        </div>
+        <nav>
+          <button type="button" data-dance-view="overview" aria-selected="true"><span>⌂</span> Visão geral</button>
+          <button type="button" data-dance-view="routines" aria-selected="false"><span>↻</span> Rotinas</button>
+          <button type="button" data-dance-view="classes" aria-selected="false"><span>◫</span> Aulas</button>
+          <button type="button" data-dance-view="people" aria-selected="false"><span>◇</span> Turmas e alunas</button>
+          <button type="button" data-dance-view="attendance" aria-selected="false"><span>✓</span> Chamada</button>
+          <button type="button" data-dance-view="evolution" aria-selected="false"><span>↗</span> Evolução</button>
+          <button type="button" data-dance-view="productions" aria-selected="false"><span>✦</span> Produções</button>
+        </nav>
+        <a class="dance-nav-home" href="/">Voltar ao Meu dia</a>
+      </aside>
+
+      <section class="dance-content">
+        <header class="dance-hero">
+          <div>
+            <h1>Ensinar com clareza, acompanhar com carinho.</h1>
+            <p>Planejamento, rotina, presença e evolução reunidos sem ocupar a tela principal do Ateliê.</p>
+          </div>
+          <div class="dance-today" id="dance-today"></div>
+        </header>
+
+        <section id="pane-teacher" class="atelier-pane active" aria-label="Ferramentas da professora">
+          <div class="atelier-grid"></div>
+        </section>
+
+        <div class="dance-loading" id="dance-loading" role="status">Organizando a central de aulas…</div>
+      </section>
+    </main>
+
+    <div class="dance-toast" id="dance-toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/aulas/aulas.js?release=15.0"></script>
+  </body>
+</html>
