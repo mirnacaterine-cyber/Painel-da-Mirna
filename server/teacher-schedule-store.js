@@ -36,8 +36,38 @@ function timeValue(value) {
   return normalized;
 }
 
+function dateValue(value) {
+  const normalized = text(value, 10);
+  if (!normalized) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized)) throw appError("Data inválida.");
+  const date = new Date(`${normalized}T12:00:00`);
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== normalized) {
+    throw appError("Data inválida.");
+  }
+  return normalized;
+}
+
+function exclusionValues(value) {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set();
+  return value.slice(0, 500).flatMap((entry) => {
+    const candidate = typeof entry === "string" ? { date: entry, reason: "" } : entry;
+    if (!candidate || typeof candidate !== "object") return [];
+    const date = dateValue(candidate.date);
+    if (!date || seen.has(date)) return [];
+    seen.add(date);
+    return [{ date, reason: text(candidate.reason, 160) }];
+  });
+}
+
 function iso(value) {
   return value ? new Date(value).toISOString() : null;
+}
+
+function dateOnly(value) {
+  if (!value) return "";
+  if (typeof value === "string") return value.slice(0, 10);
+  return new Date(value).toISOString().slice(0, 10);
 }
 
 async function getSql() {
@@ -65,12 +95,18 @@ async function ensureSchema() {
           structure TEXT,
           music_url TEXT,
           materials TEXT,
+          start_date DATE,
+          end_date DATE,
+          exclusions JSONB NOT NULL DEFAULT '[]'::jsonb,
           active BOOLEAN NOT NULL DEFAULT TRUE,
           source TEXT,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
           updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
       `;
+      await sql`ALTER TABLE mirna_teacher_schedules ADD COLUMN IF NOT EXISTS start_date DATE`;
+      await sql`ALTER TABLE mirna_teacher_schedules ADD COLUMN IF NOT EXISTS end_date DATE`;
+      await sql`ALTER TABLE mirna_teacher_schedules ADD COLUMN IF NOT EXISTS exclusions JSONB NOT NULL DEFAULT '[]'::jsonb`;
       await sql`CREATE INDEX IF NOT EXISTS mirna_teacher_schedules_weekday_idx ON mirna_teacher_schedules(active, weekday, start_time)`;
       await sql`CREATE INDEX IF NOT EXISTS mirna_teacher_schedules_group_idx ON mirna_teacher_schedules(group_id)`;
     })();
@@ -91,6 +127,9 @@ function normalize(row) {
     structure: row.structure || "",
     musicUrl: row.music_url || "",
     materials: row.materials || "",
+    startDate: dateOnly(row.start_date),
+    endDate: dateOnly(row.end_date),
+    exclusions: exclusionValues(row.exclusions),
     active: Boolean(row.active),
     source: row.source || "",
     createdAt: iso(row.created_at),
@@ -106,6 +145,11 @@ function scheduleData(data = {}) {
   if ((startTime && !endTime) || (!startTime && endTime)) {
     throw appError("Informe início e fim, ou deixe os dois horários vazios.");
   }
+  const startDate = dateValue(data.startDate);
+  const endDate = dateValue(data.endDate);
+  if (startDate && endDate && endDate < startDate) {
+    throw appError("A data final precisa ser igual ou posterior à data inicial.");
+  }
   return {
     groupId: optionalText(data.groupId, 120),
     title,
@@ -117,6 +161,9 @@ function scheduleData(data = {}) {
     structure: optionalText(data.structure, 5000),
     musicUrl: optionalText(data.musicUrl, 500),
     materials: optionalText(data.materials, 2000),
+    startDate,
+    endDate,
+    exclusions: exclusionValues(data.exclusions),
     active: booleanValue(data.active, true),
     source: optionalText(data.source, 80)
   };
@@ -137,13 +184,16 @@ export async function createTeacherScheduleStore() {
 
     async create(id, input) {
       const data = scheduleData(input);
+      const exclusionsJson = JSON.stringify(data.exclusions);
       const rows = await sql`
         INSERT INTO mirna_teacher_schedules (
           id, group_id, title, weekday, start_time, end_time, location,
-          objective, structure, music_url, materials, active, source, created_at, updated_at
+          objective, structure, music_url, materials, start_date, end_date,
+          exclusions, active, source, created_at, updated_at
         ) VALUES (
           ${id}, ${data.groupId}, ${data.title}, ${data.weekday}, ${data.startTime}, ${data.endTime},
           ${data.location}, ${data.objective}, ${data.structure}, ${data.musicUrl}, ${data.materials},
+          ${data.startDate}, ${data.endDate}, CAST(${exclusionsJson} AS jsonb),
           ${data.active}, ${data.source}, NOW(), NOW()
         )
         ON CONFLICT (id) DO UPDATE SET
@@ -157,6 +207,9 @@ export async function createTeacherScheduleStore() {
           structure=EXCLUDED.structure,
           music_url=EXCLUDED.music_url,
           materials=EXCLUDED.materials,
+          start_date=EXCLUDED.start_date,
+          end_date=EXCLUDED.end_date,
+          exclusions=EXCLUDED.exclusions,
           active=EXCLUDED.active,
           source=EXCLUDED.source,
           updated_at=NOW()
@@ -167,12 +220,15 @@ export async function createTeacherScheduleStore() {
 
     async update(id, input) {
       const data = scheduleData(input);
+      const exclusionsJson = JSON.stringify(data.exclusions);
       const rows = await sql`
         UPDATE mirna_teacher_schedules SET
           group_id=${data.groupId}, title=${data.title}, weekday=${data.weekday},
           start_time=${data.startTime}, end_time=${data.endTime}, location=${data.location},
           objective=${data.objective}, structure=${data.structure}, music_url=${data.musicUrl},
-          materials=${data.materials}, active=${data.active}, source=${data.source}, updated_at=NOW()
+          materials=${data.materials}, start_date=${data.startDate}, end_date=${data.endDate},
+          exclusions=CAST(${exclusionsJson} AS jsonb), active=${data.active},
+          source=${data.source}, updated_at=NOW()
         WHERE id=${id}
         RETURNING *
       `;
