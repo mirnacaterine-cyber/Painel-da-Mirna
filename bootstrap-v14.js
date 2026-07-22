@@ -1,4 +1,4 @@
-const RELEASE = "14.0";
+const RELEASE = "14.1";
 const RELEASE_KEY = `painel-da-mirna:release:${RELEASE}`;
 const report = [];
 
@@ -93,7 +93,7 @@ async function loadVisibleExperience() {
 
   if (teacherReady) {
     await load(
-      "Rotinas recorrentes",
+      "Editor de rotinas",
       "/teacher-recurring-v1.js",
       () => window.__mirnaTeacherRecurring && document.querySelector("#teacher-recurring"),
       5000
@@ -104,7 +104,7 @@ async function loadVisibleExperience() {
     await load("Navegação do Ateliê", "/atelier-nav.js", () => window.__mirnaAtelierNav, 3500);
   }
 
-  setHeaderStatus(teacherReady ? "Ateliê v14 pronto" : "Ateliê parcial", !teacherReady);
+  setHeaderStatus(teacherReady ? "Editor de rotinas pronto" : "Ateliê parcial", !teacherReady);
   return teacherReady;
 }
 
