@@ -1,1 +1,1 @@
-import "/bootstrap-v14.js?release=14.1";
+import "/bootstrap-v14.js?release=15.0";
