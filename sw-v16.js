@@ -1,4 +1,4 @@
-const CACHE_NAME = "atelie-da-mirna-v18";
+const CACHE_NAME = "atelie-da-mirna-v19";
 const HOME_SHELL = [
   "/",
   "/index.html",
@@ -14,6 +14,12 @@ const HOME_SHELL = [
   "/login/index.html",
   "/login/login.css",
   "/login/login.js",
+  "/agenda/",
+  "/aulas/",
+  "/faculdade/",
+  "/arquivos/",
+  "/escola/",
+  "/configuracoes/",
   "/icon.svg",
   "/manifest.webmanifest"
 ];
@@ -43,7 +49,7 @@ self.addEventListener("fetch", (event) => {
     if (cached) return cached;
     if (event.request.mode === "navigate") {
       if (url.pathname.startsWith("/login")) return caches.match("/login/index.html");
-      return caches.match("/index.html");
+      return caches.match(url.pathname) || caches.match("/index.html");
     }
     return new Response("Offline", { status: 503, statusText: "Offline" });
   }));
