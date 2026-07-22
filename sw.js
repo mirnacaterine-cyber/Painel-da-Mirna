@@ -1,26 +1,26 @@
-const CACHE_NAME = "atelie-da-mirna-v13";
+const CACHE_NAME = "atelie-da-mirna-v14";
 const APP_SHELL = [
   "/",
   "/index.html",
   "/styles.css",
-  "/workspace.css",
   "/atelier.css",
+  "/workspace.css",
   "/app.js",
   "/app-config.js",
   "/bootstrap-v10.js",
-  "/workspace.js",
+  "/bootstrap-v14.js",
   "/atelier.js",
   "/teacher-migration-v1.js",
   "/teacher-workflow-v1.js",
   "/teacher-recurring-v1.js",
   "/atelier-nav.js",
-  "/calendar-v6.js",
-  "/calendar-guard-v1.js",
-  "/diagnostics-v1.js",
   "/sidebar-v7.js",
-  "/runtime-v5.js",
+  "/workspace.js",
   "/data-hub.js",
-  "/db.js",
+  "/calendar-guard-v1.js",
+  "/calendar-v6.js",
+  "/runtime-v5.js",
+  "/diagnostics-v1.js",
   "/calendar.js",
   "/spotify.js",
   "/icon.svg",
@@ -34,9 +34,7 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
   );
   self.clients.claim();
 });
