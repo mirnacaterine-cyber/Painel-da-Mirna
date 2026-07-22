@@ -77,7 +77,7 @@ function patchStorage() {
 function markDirty() {
   writeMeta({ dirtyAt: new Date().toISOString() });
   clearTimeout(timer);
-  timer = window.setTimeout(() => syncNow().catch(() => {}), 1100);
+  if (user) timer = window.setTimeout(() => syncNow().catch(() => {}), 1100);
 }
 
 async function request(url, options = {}) {
@@ -90,11 +90,6 @@ async function request(url, options = {}) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw Object.assign(new Error(data.message || "Falha de comunicacao."), { status: response.status });
   return data;
-}
-
-function redirectToLogin() {
-  const next = `${location.pathname}${location.search}${location.hash}`;
-  location.replace(`/login/?next=${encodeURIComponent(next)}`);
 }
 
 function hasMeaningfulLocalData(payload) {
@@ -140,7 +135,10 @@ async function upload(localPayload = snapshot()) {
 }
 
 export async function syncNow() {
-  if (!user) return null;
+  if (!user) {
+    setStatus("local");
+    return null;
+  }
   const localPayload = snapshot();
   const currentMeta = meta();
   if (!currentMeta.dirtyAt && currentMeta.lastSyncedFingerprint === fingerprint(localPayload)) return null;
@@ -156,14 +154,12 @@ async function initialSync() {
     await upload(localPayload);
     return;
   }
-
   const cloudFingerprint = fingerprint(cloud.payload);
   const localFingerprint = fingerprint(localPayload);
   const isNewDevice = !currentMeta.lastCloudUpdatedAt;
   const localDirty = Boolean(currentMeta.dirtyAt) && currentMeta.lastSyncedFingerprint !== localFingerprint;
   const localDirtyAt = Date.parse(currentMeta.dirtyAt || 0);
   const cloudClientAt = Date.parse(cloud.clientUpdatedAt || cloud.updatedAt || 0);
-
   if (isNewDevice && hasMeaningfulLocalData(localPayload) && !hasMeaningfulLocalData(cloud.payload)) {
     await upload(localPayload);
     return;
@@ -174,12 +170,7 @@ async function initialSync() {
   }
   if (localFingerprint !== cloudFingerprint) {
     applyCloud(cloud.payload);
-    writeMeta({
-      lastCloudUpdatedAt: cloud.updatedAt,
-      lastSyncedFingerprint: cloudFingerprint,
-      dirtyAt: null,
-      syncedAt: new Date().toISOString()
-    });
+    writeMeta({ lastCloudUpdatedAt: cloud.updatedAt, lastSyncedFingerprint: cloudFingerprint, dirtyAt: null, syncedAt: new Date().toISOString() });
     const marker = sessionStorage.getItem("mirna-cloud-reload");
     if (marker !== cloud.updatedAt) {
       sessionStorage.setItem("mirna-cloud-reload", cloud.updatedAt);
@@ -187,12 +178,7 @@ async function initialSync() {
       await new Promise(() => {});
     }
   } else {
-    writeMeta({
-      lastCloudUpdatedAt: cloud.updatedAt,
-      lastSyncedFingerprint: localFingerprint,
-      dirtyAt: null,
-      syncedAt: new Date().toISOString()
-    });
+    writeMeta({ lastCloudUpdatedAt: cloud.updatedAt, lastSyncedFingerprint: localFingerprint, dirtyAt: null, syncedAt: new Date().toISOString() });
   }
   setStatus("synced");
 }
@@ -203,11 +189,9 @@ async function initialize() {
     const session = await request("/api/auth");
     user = session.user;
     await initialSync();
-    document.documentElement.classList.add("auth-resolved");
-    document.documentElement.style.visibility = "";
-    window.addEventListener("online", () => syncNow().catch(() => {}));
+    window.addEventListener("online", () => syncNow().catch(() => setStatus("error")));
     window.addEventListener("pagehide", () => {
-      if (!meta().dirtyAt) return;
+      if (!user || !meta().dirtyAt) return;
       fetch("/api/sync", {
         method: "PUT",
         credentials: "same-origin",
@@ -216,24 +200,28 @@ async function initialize() {
         body: JSON.stringify({ payload: snapshot(), clientUpdatedAt: new Date().toISOString() })
       }).catch(() => {});
     });
-    return user;
   } catch (error) {
     if (error.status === 401) {
-      redirectToLogin();
-      await new Promise(() => {});
+      user = null;
+      setStatus("local");
+    } else {
+      setStatus("error");
     }
+  } finally {
+    document.documentElement.classList.add("auth-resolved");
     document.documentElement.style.visibility = "";
-    setStatus("error");
-    throw error;
   }
+  return user;
 }
 
 export async function logout() {
-  await request("/api/auth", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "logout" })
-  }).catch(() => {});
+  if (user) {
+    await request("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "logout" })
+    }).catch(() => {});
+  }
   sessionStorage.clear();
   location.replace("/login/");
 }
