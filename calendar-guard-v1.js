@@ -1,0 +1,15 @@
+const WORKSPACE_KEY="painel-da-mirna:workspace:v3";
+const SNAPSHOT_KEY="painel-da-mirna:calendar-snapshot:v1";
+const FEED_KEY="painel-da-mirna:ical-feeds:v6";
+const channel="BroadcastChannel" in window?new BroadcastChannel("painel-da-mirna-workspace"):null;
+function safeJson(value,fallback=null){try{return JSON.parse(value);}catch{return fallback;}}
+function workspace(){return safeJson(localStorage.getItem(WORKSPACE_KEY),{})||{};}
+function publish(next){next.updatedAt=new Date().toISOString();localStorage.setItem(WORKSPACE_KEY,JSON.stringify(next));channel?.postMessage(next);}
+function googleEvents(state=workspace()){return Array.isArray(state.events)?state.events.filter(event=>["google-calendar-v6","google-calendar-v7"].includes(event?.autoSource)):[];}
+function snapshot(){const events=googleEvents();if(events.length)localStorage.setItem(SNAPSHOT_KEY,JSON.stringify({events,at:new Date().toISOString()}));}
+function restore(){const current=workspace();if(googleEvents(current).length)return false;const saved=safeJson(localStorage.getItem(SNAPSHOT_KEY),{});if(!Array.isArray(saved.events)||!saved.events.length)return false;publish({...current,events:[...(current.events||[]).filter(event=>!["google-calendar-v6","google-calendar-v7"].includes(event?.autoSource)),...saved.events]});return true;}
+function connections(){const rows=safeJson(localStorage.getItem(FEED_KEY),[]);return Array.isArray(rows)?rows:[];}
+function patchCalendarUi(){const form=document.querySelector("#hub-calendar-form");if(!form||form.dataset.guardReady)return;form.dataset.guardReady="true";const callout=form.parentElement?.querySelector(".hub-callout");if(callout)callout.textContent="O link é testado antes de salvar, fica somente neste navegador e uma falha nunca apaga os últimos eventos válidos.";const list=document.querySelector("#hub-calendar-list");list?.addEventListener("click",event=>{const item=event.target.closest("[data-calendar-id]");const button=event.target.closest("[data-calendar-remove]");if(button&&!confirm("Remover esta agenda deste navegador? Os eventos dela também serão retirados do painel.")){event.preventDefault();event.stopImmediatePropagation();}},true);}
+function observeWorkspace(){window.addEventListener("storage",event=>{if(event.key===WORKSPACE_KEY){if(googleEvents().length)snapshot();else restore();}});channel?.addEventListener("message",()=>{if(googleEvents().length)snapshot();else restore();});window.addEventListener("mirna:calendar-updated",()=>snapshot());window.addEventListener("mirna:calendar-sync-finished",()=>{if(googleEvents().length)snapshot();else restore();});}
+function init(){restore();snapshot();patchCalendarUi();const timer=setInterval(()=>{patchCalendarUi();if(googleEvents().length)snapshot();},3000);observeWorkspace();window.__mirnaCalendarGuard={snapshot,restore,getSnapshot:()=>safeJson(localStorage.getItem(SNAPSHOT_KEY),null),getConnections:connections};window.addEventListener("beforeunload",()=>{clearInterval(timer);channel?.close();});}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
