@@ -1,4 +1,4 @@
-const CACHE_NAME = "atelie-da-mirna-v11";
+const CACHE_NAME = "atelie-da-mirna-v12";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -10,6 +10,7 @@ const APP_SHELL = [
   "/bootstrap-v10.js",
   "/workspace.js",
   "/atelier.js",
+  "/teacher-migration-v1.js",
   "/teacher-workflow-v1.js",
   "/atelier-nav.js",
   "/calendar-v6.js",
