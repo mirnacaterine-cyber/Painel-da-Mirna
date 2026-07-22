@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { authenticateRequest } from "../server/auth-store.js";
 import { createTeacherScheduleStore } from "../server/teacher-schedule-store.js";
 
 const HEADERS = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" };
@@ -13,11 +14,16 @@ function safeEquals(left, right) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-function authorize(request) {
+async function authorize(request) {
   const expected = process.env.PAINEL_API_TOKEN;
-  if (!expected) return json({ ok: false, message: "Defina PAINEL_API_TOKEN na Vercel antes de ativar dados privados." }, 503);
   const received = request.headers.get("x-painel-token") || request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") || "";
-  return received && safeEquals(received, expected) ? null : json({ ok: false, message: "Token pessoal ausente ou inválido." }, 401);
+  if (expected && received && safeEquals(received, expected)) return null;
+  try {
+    if (await authenticateRequest(request)) return null;
+  } catch (error) {
+    if (!expected) return json({ ok: false, message: error?.message || "Banco de acesso indisponivel." }, Number(error?.status) || 503);
+  }
+  return json({ ok: false, message: "Entre novamente para acessar as rotinas." }, 401);
 }
 
 function id(prefix = "schedule") {
@@ -25,7 +31,7 @@ function id(prefix = "schedule") {
 }
 
 async function run(request) {
-  const authFailure = authorize(request);
+  const authFailure = await authorize(request);
   if (authFailure) return authFailure;
   try {
     const store = await createTeacherScheduleStore();
@@ -38,16 +44,16 @@ async function run(request) {
     if (request.method === "PATCH") {
       const body = await request.json();
       const item = await store.update(String(body.id || "").slice(0, 120), body.data || {});
-      return item ? json({ ok: true, item }) : json({ ok: false, message: "Rotina não encontrada." }, 404);
+      return item ? json({ ok: true, item }) : json({ ok: false, message: "Rotina nao encontrada." }, 404);
     }
     if (request.method === "DELETE") {
       const recordId = String(new URL(request.url).searchParams.get("id") || "").slice(0, 120);
       const removed = await store.remove(recordId);
-      return removed ? json({ ok: true }) : json({ ok: false, message: "Rotina não encontrada." }, 404);
+      return removed ? json({ ok: true }) : json({ ok: false, message: "Rotina nao encontrada." }, 404);
     }
-    return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "GET, POST, PATCH, DELETE" });
+    return json({ ok: false, message: "Metodo nao permitido." }, 405, { Allow: "GET, POST, PATCH, DELETE" });
   } catch (error) {
-    return json({ ok: false, message: error?.message || "Não foi possível concluir esta ação." }, Number(error?.status) || 500);
+    return json({ ok: false, message: error?.message || "Nao foi possivel concluir esta acao." }, Number(error?.status) || 500);
   }
 }
 

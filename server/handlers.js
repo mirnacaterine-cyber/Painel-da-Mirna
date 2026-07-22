@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { authenticateRequest } from "./auth-store.js";
 import { fetchCalendarIcs, fetchNewsItems } from "./feed-utils.js";
 
 const DESTINATION_IDS = new Set(["00", "01", "02", "03", "04", "05", "06", "07", "08", "99"]);
@@ -27,19 +28,21 @@ function safeEquals(left, right) {
   return timingSafeEqual(leftBuffer, rightBuffer);
 }
 
-function authorize(request, { local = false } = {}) {
+async function authorize(request, { local = false } = {}) {
   if (local) return null;
   const expected = process.env.PAINEL_API_TOKEN;
-  if (!expected) {
-    return json({ ok: false, message: "Defina PAINEL_API_TOKEN na Vercel antes de ativar dados privados." }, 503);
-  }
   const received = request.headers.get("x-painel-token")
     || request.headers.get("authorization")?.replace(/^Bearer\s+/i, "")
     || "";
-  if (!received || !safeEquals(received, expected)) {
-    return json({ ok: false, message: "Token pessoal ausente ou inválido." }, 401);
+  if (expected && received && safeEquals(received, expected)) return null;
+  try {
+    const session = await authenticateRequest(request);
+    if (session) return null;
+  } catch (error) {
+    if (!expected) return json({ ok: false, message: error?.message || "Banco de acesso indisponível." }, Number(error?.status) || 503);
   }
-  return null;
+  if (!expected) return json({ ok: false, message: "Configure o acesso privado antes de ativar dados na nuvem." }, 503);
+  return json({ ok: false, message: "Entre novamente para acessar estes dados." }, 401);
 }
 
 function randomId(prefix) {
@@ -76,9 +79,8 @@ export function healthResponse({ mode, database, files, news = true, calendar = 
 }
 
 export async function handleState(request, store, options = {}) {
-  const authFailure = authorize(request, options);
+  const authFailure = await authorize(request, options);
   if (authFailure) return authFailure;
-
   try {
     if (request.method === "GET") {
       const url = new URL(request.url);
@@ -86,7 +88,6 @@ export async function handleState(request, store, options = {}) {
       const row = await store.getState(id);
       return row ? json(row) : json({ ok: false, message: "Estado ainda não criado." }, 404);
     }
-
     if (request.method === "PUT") {
       const body = await request.json();
       const id = String(body?.id || "mirna-dashboard").slice(0, 100);
@@ -100,7 +101,6 @@ export async function handleState(request, store, options = {}) {
       const row = await store.putState(id, body.payload, body.clientUpdatedAt || null);
       return json(row);
     }
-
     return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "GET, PUT" });
   } catch (error) {
     return errorResponse(error);
@@ -108,32 +108,24 @@ export async function handleState(request, store, options = {}) {
 }
 
 export async function handleFiles(request, store, options = {}) {
-  const authFailure = authorize(request, options);
+  const authFailure = await authorize(request, options);
   if (authFailure) return authFailure;
-
   try {
     if (request.method === "GET") return json(await store.listFiles());
-
     if (request.method === "PATCH") {
       if (typeof store.updateFile !== "function") {
         return json({ ok: false, message: "Este armazenamento ainda não aceita atualizações." }, 501);
       }
       const metadata = normalizedFileMetadata(await request.json());
       const updated = await store.updateFile(metadata.id, metadata);
-      return updated
-        ? json(updated)
-        : json({ ok: false, message: "Arquivo não encontrado." }, 404);
+      return updated ? json(updated) : json({ ok: false, message: "Arquivo não encontrado." }, 404);
     }
-
     if (request.method === "DELETE") {
       const id = new URL(request.url).searchParams.get("id");
       if (!id) return json({ ok: false, message: "Arquivo não informado." }, 400);
       const deleted = await store.deleteFile(String(id).slice(0, 180));
-      return deleted
-        ? json({ ok: true })
-        : json({ ok: false, message: "Arquivo não encontrado." }, 404);
+      return deleted ? json({ ok: true }) : json({ ok: false, message: "Arquivo não encontrado." }, 404);
     }
-
     return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "GET, PATCH, DELETE" });
   } catch (error) {
     return errorResponse(error);
@@ -141,9 +133,8 @@ export async function handleFiles(request, store, options = {}) {
 }
 
 export async function handleUpload(request, store, options = {}) {
-  const authFailure = authorize(request, options);
+  const authFailure = await authorize(request, options);
   if (authFailure) return authFailure;
-
   try {
     const form = await request.formData();
     const file = form.get("file");
@@ -153,10 +144,7 @@ export async function handleUpload(request, store, options = {}) {
       return json({ ok: false, message: "Nenhum arquivo foi recebido." }, 400);
     }
     if (file.size > store.maxUploadBytes) {
-      return json({
-        ok: false,
-        message: `O arquivo ultrapassa o limite de ${Math.round(store.maxUploadBytes / 1024 / 1024)} MB deste armazenamento.`
-      }, 413);
+      return json({ ok: false, message: `O arquivo ultrapassa o limite de ${Math.round(store.maxUploadBytes / 1024 / 1024)} MB deste armazenamento.` }, 413);
     }
     const saved = await store.saveFile({ id: randomId("file"), destinationId, note, file });
     return json(saved, 201);
@@ -166,9 +154,8 @@ export async function handleUpload(request, store, options = {}) {
 }
 
 export async function handleFileDownload(request, store, options = {}) {
-  const authFailure = authorize(request, options);
+  const authFailure = await authorize(request, options);
   if (authFailure) return authFailure;
-
   try {
     const id = new URL(request.url).searchParams.get("id");
     if (!id) return json({ ok: false, message: "Arquivo não informado." }, 400);

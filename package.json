@@ -1,1 +1,17 @@
-{"name":"painel-da-mirna","version":"10.0.0","private":true,"type":"module","description":"Ateliê da Mirna com páginas leves e integradas para rotina, agenda, aulas, faculdade, arquivos e futura escola.","scripts":{"dev":"python3 -m http.server 4173","check":"node --check app.js && node --check portal-shell-v16.js && node --check bootstrap-v16.js && node --check bootstrap-v10.js && node --check agenda/agenda.js && node --check aulas/aulas.js && node --check arquivos/arquivos.js && node --check configuracoes/configuracoes.js && node --check escola/escola.js && node --check faculdade/faculdade.js && node --check teacher-migration-v1.js && node --check teacher-workflow-v1.js && node --check teacher-recurring-v1.js && node --check data-hub.js && node --check sw-v16.js && node --check sw.js && node --check server/handlers.js && node --check server/cloud-store.js && node --check server/teacher-store.js && node --check server/teacher-schedule-store.js && node --check server/local-store.js && node --check api/teacher.js && node --check api/teacher-schedules.js && node --check api/files.js && node --check api/weather.js && node --check server.js","test":"node --test tests/*.test.mjs"},"engines":{"node":"22.x"},"dependencies":{"@neondatabase/serverless":"^1.1.0","@vercel/blob":"^2.6.1"}}
+{
+  "name": "painel-da-mirna",
+  "version": "11.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Atelie da Mirna com login, sincronizacao, prioridades inteligentes e paginas integradas.",
+  "scripts": {
+    "dev": "python3 -m http.server 4173",
+    "check": "node --check app.js && node --check auth-client-v18.js && node --check portal-shell-v16.js && node --check bootstrap-v16.js && node --check bootstrap-v10.js && node --check agenda/agenda.js && node --check aulas/aulas.js && node --check arquivos/arquivos.js && node --check configuracoes/configuracoes.js && node --check escola/escola.js && node --check faculdade/faculdade.js && node --check login/login.js && node --check teacher-migration-v1.js && node --check teacher-workflow-v1.js && node --check teacher-recurring-v1.js && node --check data-hub.js && node --check sw-v16.js && node --check sw.js && node --check server/auth-store.js && node --check server/handlers.js && node --check server/cloud-store.js && node --check server/teacher-store.js && node --check server/teacher-schedule-store.js && node --check server/local-store.js && node --check api/auth.js && node --check api/sync.js && node --check api/teacher.js && node --check api/teacher-schedules.js && node --check api/files.js && node --check api/weather.js && node --check server.js",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": { "node": "22.x" },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "@vercel/blob": "^2.6.1"
+  }
+}

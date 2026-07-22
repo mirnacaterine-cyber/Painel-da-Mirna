@@ -1,1 +1,1 @@
-importScripts("/sw-v16.js?release=16.0");
+importScripts("/sw-v16.js?release=18.0");

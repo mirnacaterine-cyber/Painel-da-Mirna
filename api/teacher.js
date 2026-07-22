@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { authenticateRequest } from "../server/auth-store.js";
 import { createTeacherStore } from "../server/teacher-store.js";
 
 const HEADERS = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" };
@@ -13,11 +14,16 @@ function safeEquals(left, right) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-function authorize(request) {
+async function authorize(request) {
   const expected = process.env.PAINEL_API_TOKEN;
-  if (!expected) return json({ ok: false, message: "Defina PAINEL_API_TOKEN na Vercel antes de ativar dados privados." }, 503);
   const received = request.headers.get("x-painel-token") || request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") || "";
-  return received && safeEquals(received, expected) ? null : json({ ok: false, message: "Token pessoal ausente ou inválido." }, 401);
+  if (expected && received && safeEquals(received, expected)) return null;
+  try {
+    if (await authenticateRequest(request)) return null;
+  } catch (error) {
+    if (!expected) return json({ ok: false, message: error?.message || "Banco de acesso indisponivel." }, Number(error?.status) || 503);
+  }
+  return json({ ok: false, message: "Entre novamente para acessar as aulas." }, 401);
 }
 
 function resourceFrom(request, body = {}) {
@@ -30,7 +36,7 @@ function id(prefix = "teacher") {
 }
 
 async function run(request) {
-  const authFailure = authorize(request);
+  const authFailure = await authorize(request);
   if (authFailure) return authFailure;
   try {
     const store = await createTeacherStore();
@@ -46,18 +52,18 @@ async function run(request) {
       const resource = resourceFrom(request, body);
       const recordId = String(body.id || "").slice(0, 120);
       const updated = await store.update(resource, recordId, body.data || {});
-      return updated ? json({ ok: true, item: updated }) : json({ ok: false, message: "Registro não encontrado." }, 404);
+      return updated ? json({ ok: true, item: updated }) : json({ ok: false, message: "Registro nao encontrado." }, 404);
     }
     if (request.method === "DELETE") {
       const url = new URL(request.url);
       const resource = resourceFrom(request);
       const recordId = String(url.searchParams.get("id") || "").slice(0, 120);
       const removed = await store.remove(resource, recordId);
-      return removed ? json({ ok: true }) : json({ ok: false, message: "Registro não encontrado." }, 404);
+      return removed ? json({ ok: true }) : json({ ok: false, message: "Registro nao encontrado." }, 404);
     }
-    return json({ ok: false, message: "Método não permitido." }, 405, { Allow: "GET, POST, PATCH, DELETE" });
+    return json({ ok: false, message: "Metodo nao permitido." }, 405, { Allow: "GET, POST, PATCH, DELETE" });
   } catch (error) {
-    return json({ ok: false, message: error?.message || "Não foi possível concluir esta ação." }, Number(error?.status) || 500);
+    return json({ ok: false, message: error?.message || "Nao foi possivel concluir esta acao." }, Number(error?.status) || 500);
   }
 }
 
