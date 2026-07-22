@@ -5,49 +5,58 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#a76782">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>Entrar &middot; Ateli&ecirc; da Mirna</title>
+  <title>Acesso &middot; Ateli&ecirc; da Mirna</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/login/login.css?release=18.0">
+  <link rel="stylesheet" href="/login/login.css?release=19.0">
 </head>
 <body>
   <main class="login-shell">
-    <section class="login-story" aria-label="Atelie da Mirna">
-      <a class="login-brand" href="/"><span aria-hidden="true">&#127799;</span><strong>Ateli&ecirc; da Mirna</strong></a>
+    <section class="login-story" aria-label="Ateliê da Mirna">
+      <a class="login-brand" href="/"><span aria-hidden="true">🌷</span><strong>Ateliê da Mirna</strong></a>
       <div class="login-story-copy">
-        <p>Um cantinho s&oacute; seu</p>
-        <h1>Rotina, aulas e sonhos acompanhando voc&ecirc;.</h1>
-        <p class="login-lead">Entre para encontrar a mesma agenda, anota&ccedil;&otilde;es e planejamentos no celular e no computador.</p>
+        <p>Um cantinho só seu</p>
+        <h1>Rotina, aulas e sonhos acompanhando você.</h1>
+        <p class="login-lead">Entre para sincronizar ou continue usando tudo localmente enquanto revisa o Ateliê.</p>
       </div>
       <div class="login-petals" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-      <div class="login-promise"><span>&#10022;</span><div><strong>Sincroniza&ccedil;&atilde;o autom&aacute;tica</strong><small>As mudan&ccedil;as ficam salvas enquanto voc&ecirc; organiza o dia.</small></div></div>
+      <div class="login-promise"><span>✦</span><div><strong>Você escolhe o momento</strong><small>O cadastro ativa a nuvem, mas não bloqueia a navegação local.</small></div></div>
     </section>
 
     <section class="login-card" aria-live="polite">
       <div class="login-card-head">
-        <span class="login-mark" aria-hidden="true">&#10047;</span>
-        <div><p id="login-kicker">Bem-vinda de volta</p><h2 id="login-title">Entre no seu Ateli&ecirc;</h2></div>
+        <span class="login-mark" aria-hidden="true">✿</span>
+        <div><p id="login-kicker">Acesso ao Ateliê</p><h2 id="login-title">Como deseja continuar?</h2></div>
       </div>
-      <p class="login-intro" id="login-intro">Use o e-mail e a senha escolhidos no primeiro acesso.</p>
+      <p class="login-intro" id="login-intro">Escolha entre entrar em uma conta existente ou criar o primeiro acesso.</p>
 
-      <form id="login-form" class="login-form" hidden>
-        <label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="seu@email.com"></label>
-        <label>Senha<span class="password-wrap"><input name="password" type="password" autocomplete="current-password" required><button type="button" data-toggle-password aria-label="Mostrar senha">&#9673;</button></span></label>
-        <button class="login-primary" type="submit">Entrar no Ateli&ecirc;</button>
-      </form>
+      <div class="login-switch" role="tablist" aria-label="Escolher forma de acesso">
+        <span class="login-switch-glow" aria-hidden="true"></span>
+        <button type="button" role="tab" id="tab-login" data-auth-view="login" aria-selected="true" aria-controls="login-form">Entrar</button>
+        <button type="button" role="tab" id="tab-setup" data-auth-view="setup" aria-selected="false" aria-controls="setup-form">Criar conta</button>
+      </div>
 
-      <form id="setup-form" class="login-form" hidden>
-        <label>Como devemos chamar voc&ecirc;?<input name="name" autocomplete="name" required placeholder="Mirna"></label>
-        <label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="seu@email.com"></label>
-        <label>Crie uma senha<span class="password-wrap"><input name="password" type="password" autocomplete="new-password" minlength="8" required><button type="button" data-toggle-password aria-label="Mostrar senha">&#9673;</button></span><small>Pelo menos 8 caracteres.</small></label>
-        <label>Repita a senha<input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required></label>
-        <label>C&oacute;digo de ativa&ccedil;&atilde;o<input name="activationCode" type="password" autocomplete="off" required><small>Usado somente neste primeiro cadastro.</small></label>
-        <button class="login-primary" type="submit">Criar meu acesso</button>
-      </form>
+      <div class="login-forms" id="login-forms">
+        <form id="login-form" class="login-form is-active" aria-labelledby="tab-login">
+          <label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="seu@email.com"></label>
+          <label>Senha<span class="password-wrap"><input name="password" type="password" autocomplete="current-password" required><button type="button" data-toggle-password aria-label="Mostrar senha">◉</button></span></label>
+          <button class="login-primary" type="submit">Entrar no Ateliê</button>
+        </form>
 
-      <div class="login-status" id="login-status" role="status">Preparando seu acesso&hellip;</div>
-      <p class="login-foot">Seus dados continuam privados e protegidos pelas configura&ccedil;&otilde;es do Ateli&ecirc;.</p>
+        <form id="setup-form" class="login-form" aria-labelledby="tab-setup" hidden>
+          <label>Como devemos chamar você?<input name="name" autocomplete="name" required placeholder="Mirna"></label>
+          <label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="seu@email.com"></label>
+          <label>Crie uma senha<span class="password-wrap"><input name="password" type="password" autocomplete="new-password" minlength="8" required><button type="button" data-toggle-password aria-label="Mostrar senha">◉</button></span><small>Pelo menos 8 caracteres.</small></label>
+          <label>Repita a senha<input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+          <label>Código de ativação<input name="activationCode" type="password" autocomplete="off" required><small>Usado somente neste primeiro cadastro.</small></label>
+          <button class="login-primary" type="submit">Criar meu acesso</button>
+        </form>
+      </div>
+
+      <a class="login-local" id="login-local" href="/">Continuar sem conta por enquanto <span>→</span></a>
+      <div class="login-status" id="login-status" role="status">Verificando o acesso disponível…</div>
+      <p class="login-foot">No modo local, os dados continuam neste dispositivo. A conta ativa a sincronização entre celular e computador.</p>
     </section>
   </main>
-  <script type="module" src="/login/login.js?release=18.0"></script>
+  <script type="module" src="/login/login.js?release=19.0"></script>
 </body>
 </html>
