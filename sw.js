@@ -1,4 +1,4 @@
-const CACHE_NAME = "atelie-da-mirna-v9";
+const CACHE_NAME = "atelie-da-mirna-v10";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -7,15 +7,16 @@ const APP_SHELL = [
   "/atelier.css",
   "/app.js",
   "/app-config.js",
+  "/bootstrap-v10.js",
   "/workspace.js",
   "/atelier.js",
   "/atelier-nav.js",
   "/calendar-v6.js",
+  "/calendar-guard-v1.js",
+  "/diagnostics-v1.js",
   "/sidebar-v7.js",
-  "/auto-sync.js",
-  "/auto-fix.js",
-  "/data-hub.js",
   "/runtime-v5.js",
+  "/data-hub.js",
   "/db.js",
   "/calendar.js",
   "/spotify.js",
