@@ -1,18 +1,1 @@
-{
-  "name": "Painel da Mirna",
-  "short_name": "Painel da Mirna",
-  "description": "Rotina, estudos, ballet e planos em um só lugar.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#f8f3ef",
-  "theme_color": "#8f5f72",
-  "lang": "pt-BR",
-  "icons": [
-    {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
-}
+{"name":"Ateliê da Mirna","short_name":"Ateliê da Mirna","description":"Meu dia, agenda, aulas, faculdade, arquivos e projeto da escola em áreas organizadas.","start_url":"/?source=pwa","scope":"/","display":"standalone","background_color":"#f7f3f5","theme_color":"#8f5f72","lang":"pt-BR","icons":[{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}],"shortcuts":[{"name":"Agenda","short_name":"Agenda","url":"/agenda/"},{"name":"Aulas & Dança","short_name":"Aulas","url":"/aulas/"},{"name":"Faculdade","short_name":"Faculdade","url":"/faculdade/"}]}

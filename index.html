@@ -4,235 +4,40 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#8f5f72" />
-    <meta name="description" content="Ateliê da Mirna para rotina, aulas, estudos e construção da futura escola." />
+    <meta name="description" content="Ateliê da Mirna: um painel leve para organizar o dia e abrir cada área da vida." />
     <meta name="robots" content="noindex, nofollow, noarchive" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' data: blob: https://i.scdn.co https://mosaic.scdn.co; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-src https://open.spotify.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
-    />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
     <title>Ateliê da Mirna 🌷</title>
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/portal-shell-v16.css?release=16.0" />
+    <link rel="stylesheet" href="/home-v16.css?release=16.0" />
   </head>
-  <body>
-    <div class="ambient ambient-one" aria-hidden="true"></div>
-    <div class="ambient ambient-two" aria-hidden="true"></div>
-
-    <header class="site-header" id="top">
-      <a class="brand" href="#top" aria-label="Voltar ao início">
-        <span class="brand-mark" aria-hidden="true">🌷</span>
-        <span>
-          <small id="brand-eyebrow">Ateliê da Mirna</small>
-          <strong id="brand-name">Painel da Mirna</strong>
-        </span>
-      </a>
-
-      <nav class="header-actions" aria-label="Ações do painel">
-        <span class="connection-status" id="connection-status" role="status">Online</span>
-        <button class="icon-button" id="theme-toggle" type="button" aria-label="Alternar tema">
-          <span aria-hidden="true">☾</span>
-        </button>
-      </nav>
-    </header>
-
-    <main class="page-shell">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <p class="eyebrow" id="today-label">Hoje</p>
-          <h1 id="hero-title">Um lugar calmo para organizar o que importa.</h1>
-          <p class="hero-subtitle" id="app-subtitle">
-            Rotina, estudos, ballet e nossos planos em um só lugar.
-          </p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="#entrada">Anotar na Entrada</a>
-            <a class="button button-ghost" href="#acesso-rapido">Abrir uma área</a>
-          </div>
-        </div>
-
-        <aside class="today-card" aria-labelledby="today-title">
-          <div class="today-card-topline">
-            <div>
-              <p class="mini-label">Ritmo de hoje</p>
-              <h2 id="today-title">Revisão rápida</h2>
-            </div>
-            <span class="progress-number" id="daily-progress-number">0/5</span>
-          </div>
-          <div
-            class="progress-track"
-            role="progressbar"
-            aria-label="Progresso da revisão rápida"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="0"
-            id="daily-progress-track"
-          >
-            <span id="daily-progress-bar"></span>
-          </div>
-          <p class="progress-message" id="daily-progress-message">Comece com um passo pequeno.</p>
-          <div class="today-date" id="today-date"></div>
-        </aside>
-      </section>
-
-      <section class="section" id="acesso-rapido" aria-labelledby="folders-title">
-        <div class="section-heading section-heading-inline">
-          <div>
-            <p class="eyebrow">Acesso rápido</p>
-            <h2 id="folders-title">Cada coisa em seu cantinho</h2>
-          </div>
-          <label class="search-field" for="folder-search">
-            <span aria-hidden="true">⌕</span>
-            <span class="sr-only">Pesquisar áreas</span>
-            <input id="folder-search" type="search" placeholder="Pesquisar uma área" autocomplete="off" />
-          </label>
-        </div>
-
-        <div class="folder-grid" id="folder-grid" aria-live="polite"></div>
-        <p class="empty-state" id="folder-empty" hidden>Nenhuma área combina com essa busca.</p>
-      </section>
-
-      <section class="section review-grid" aria-label="Revisões">
-        <article class="panel checklist-panel" aria-labelledby="daily-title">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Todos os dias</p>
-              <h2 id="daily-title">Revisão rápida</h2>
-            </div>
-            <button class="text-button" id="reset-daily" type="button">Recomeçar</button>
-          </div>
-          <div class="checklist" id="daily-checklist"></div>
-          <p class="panel-note">A lista diária recomeça automaticamente quando o dia muda.</p>
-        </article>
-
-        <article class="panel checklist-panel" aria-labelledby="weekly-title">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Uma vez por semana</p>
-              <h2 id="weekly-title">Revisão semanal</h2>
-            </div>
-            <button class="text-button" id="reset-weekly" type="button">Recomeçar</button>
-          </div>
-          <div class="checklist" id="weekly-checklist"></div>
-          <p class="panel-note">A lista semanal recomeça automaticamente toda segunda-feira.</p>
-        </article>
-      </section>
-
-      <section class="section capture-section" id="entrada" aria-labelledby="capture-title">
-        <article class="panel capture-panel">
-          <div class="capture-copy">
-            <p class="eyebrow">Entrada rápida</p>
-            <h2 id="capture-title">Tire da cabeça antes que escape</h2>
-            <p>
-              Registre uma tarefa, ideia, compra, prazo ou arquivo para organizar depois. Tudo fica salvo
-              somente neste navegador.
-            </p>
-          </div>
-
-          <form class="capture-form" id="capture-form">
-            <label class="sr-only" for="capture-input">Nova anotação</label>
-            <textarea
-              id="capture-input"
-              rows="3"
-              maxlength="280"
-              placeholder="Ex.: separar músicas da aula de quinta…"
-              required
-            ></textarea>
-            <div class="capture-form-footer">
-              <span id="capture-counter" aria-live="polite">0/280</span>
-              <button class="button button-primary" type="submit">Guardar na Entrada</button>
-            </div>
-          </form>
-        </article>
-
-        <article class="panel inbox-panel" aria-labelledby="inbox-title">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Para organizar</p>
-              <h2 id="inbox-title">Itens na Entrada</h2>
-            </div>
-            <span class="count-badge" id="inbox-count">0</span>
-          </div>
-          <ul class="inbox-list" id="inbox-list"></ul>
-          <p class="empty-inbox" id="empty-inbox">A Entrada está leve. Que delícia.</p>
-        </article>
-      </section>
-
-      <section class="section" aria-labelledby="vision-title">
-        <div class="section-heading">
-          <p class="eyebrow">Visão de longo prazo</p>
-          <h2 id="vision-title">O norte por trás da rotina</h2>
-          <p>Organização é só o meio. O objetivo é abrir espaço para uma vida bonita e sustentável.</p>
-        </div>
-        <div class="vision-grid" id="vision-grid"></div>
-      </section>
-
-      <section class="section utility-panel" aria-labelledby="utility-title">
+  <body data-portal-page="home">
+    <main class="portal-main home-main" id="conteudo-principal">
+      <section class="home-hero">
         <div>
-          <p class="eyebrow">Cópia de segurança</p>
-          <h2 id="utility-title">Leve seus dados com você</h2>
-          <p>Exporte checklists e anotações em JSON ou restaure um arquivo salvo anteriormente.</p>
+          <p class="portal-eyebrow" id="home-greeting">Hoje</p>
+          <h1>Um lugar calmo para organizar o que importa.</h1>
+          <p>Veja o essencial, escolha uma área e deixe cada detalhe no ambiente certo.</p>
+          <div class="home-actions"><a class="portal-button primary" href="/agenda/">Abrir minha agenda</a><button class="portal-button" id="home-organize" type="button">Organizar meu dia</button></div>
         </div>
-        <div class="utility-actions">
-          <button class="button button-ghost" id="export-data" type="button">Exportar dados</button>
-          <label class="button button-ghost" for="import-data">Importar dados</label>
-          <input id="import-data" type="file" accept="application/json,.json" hidden />
-        </div>
+        <aside class="home-date-card"><span id="home-date"></span><strong id="home-progress-label">0/5 cuidados</strong><div class="home-progress"><span id="home-progress-bar"></span></div><small id="home-progress-message">Comece com um passo pequeno.</small></aside>
+      </section>
+      <section class="home-section" aria-labelledby="home-areas-title">
+        <div class="home-section-head"><div><p class="portal-eyebrow">Áreas do Ateliê</p><h2 id="home-areas-title">Cada coisa em seu lugar</h2></div><p>As páginas carregam somente quando você abre.</p></div>
+        <div class="home-area-grid" id="home-area-grid"></div>
+      </section>
+      <section class="home-layout">
+        <article class="home-panel home-today-panel"><div class="home-panel-head"><div><p class="portal-eyebrow">Meu dia</p><h2>O essencial de hoje</h2></div><button class="home-text-button" id="home-reset-daily" type="button">Recomeçar</button></div><div class="home-checklist" id="home-daily-list"></div></article>
+        <article class="home-panel"><div class="home-panel-head"><div><p class="portal-eyebrow">Próximo compromisso</p><h2 id="home-next-title">Agenda livre</h2></div><a class="home-text-button" href="/agenda/">Abrir agenda</a></div><p id="home-next-copy">Nenhum compromisso futuro encontrado.</p><div class="home-mini-list" id="home-pending-list"></div></article>
+      </section>
+      <section class="home-layout">
+        <article class="home-panel"><div class="home-panel-head"><div><p class="portal-eyebrow">Entrada rápida</p><h2>Tire da cabeça</h2></div><span class="home-count" id="home-inbox-count">0</span></div><form class="home-capture" id="home-capture-form"><textarea id="home-capture-input" maxlength="280" rows="3" placeholder="Ex.: separar músicas da aula de quinta…" required></textarea><div><span id="home-capture-counter">0/280</span><button class="portal-button primary" type="submit">Guardar</button></div></form></article>
+        <article class="home-panel"><div class="home-panel-head"><div><p class="portal-eyebrow">Para organizar</p><h2>Itens na Entrada</h2></div><a class="home-text-button" href="/agenda/">Transformar em tarefa</a></div><div class="home-inbox" id="home-inbox-list"></div></article>
       </section>
     </main>
-
-    <footer class="site-footer">
-      <div>
-        <strong>Seu painel, seu ritmo.</strong>
-        <p>Os links continuam protegidos pelas permissões do Google Drive.</p>
-      </div>
-      <div class="footer-meta">
-        <span>Dados locais</span>
-        <span aria-hidden="true">•</span>
-        <span>Sem rastreamento</span>
-        <span aria-hidden="true">•</span>
-        <span id="footer-year"></span>
-      </div>
-    </footer>
-
-    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-
-    <template id="folder-card-template">
-      <a class="folder-card" target="_blank" rel="noopener noreferrer">
-        <div class="folder-card-topline">
-          <span class="folder-icon" aria-hidden="true"></span>
-          <span class="folder-number"></span>
-        </div>
-        <div>
-          <h3></h3>
-          <p></p>
-        </div>
-        <span class="folder-link-label">Abrir no Drive <span aria-hidden="true">↗</span></span>
-      </a>
-    </template>
-
-    <template id="check-item-template">
-      <label class="check-item">
-        <input type="checkbox" />
-        <span class="custom-checkbox" aria-hidden="true"></span>
-        <span class="check-label"></span>
-      </label>
-    </template>
-
-    <template id="inbox-item-template">
-      <li class="inbox-item">
-        <label class="inbox-main">
-          <input class="inbox-check" type="checkbox" />
-          <span class="custom-checkbox small" aria-hidden="true"></span>
-          <span>
-            <span class="inbox-text"></span>
-            <time class="inbox-time"></time>
-          </span>
-        </label>
-        <button class="delete-button" type="button" aria-label="Excluir anotação">×</button>
-      </li>
-    </template>
-
-    <script type="module" src="/app.js?v=10.1"></script>
-    <script type="module" src="/bootstrap-v10.js?v=10.1"></script>
+    <script type="module" src="/portal-shell-v16.js?release=16.0"></script>
+    <script type="module" src="/app.js?release=16.0"></script>
   </body>
 </html>
